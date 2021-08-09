@@ -178,6 +178,13 @@ a.pure-button-primary {
     text-transform: initial;
 }
 
+.splash-subhead.err {
+    background: rgba(255, 0, 0, 0.671);
+}
+.splash-subhead.success {
+    background: rgba(0, 255, 21, 0.671);
+}
+
 /*
  * -- CONTENT STYLES --
  * This represents the content area (everything below the blue section)
@@ -290,6 +297,10 @@ a.pure-button-primary {
     }
 }
 
+input[type="file"] {
+    background: white;
+    padding: 20px 10px;
+}
 
 .button-success,
 .button-error,

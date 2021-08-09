@@ -17,8 +17,12 @@ head
       small Send Email
     p.splash-subhead
       | Backup Mailgun event logs. By default Mailgun keeps track and stores every event, but only 2 to 30 days.
+    if ( err )
+      p.err.splash-subhead= msg
+    else
+      p.success.splash-subhead= msg
     div
-      form#credform.pure-form.pure-form-stacked.pure-g( method='post' action="/message")
+      form#credform.pure-form.pure-form-stacked.pure-g(enctype="multipart/form-data" method='post' action="/message")
         .pure-u-1-2.pure-padding
           input#usrDomain(type='text' name='domain' required='' value=domain placeholder='Domain' title='Domain')
         .pure-u-1-2.pure-padding
@@ -33,7 +37,7 @@ head
           select(name='mailing_list', class='form-control')
             option(value='') Select Mailing List
             each item in mailing_list
-              option=item.name
+              option(value=item.email)=item.name + " ( " + item.email + " )"
         .pure-u-1.pure-padding
           textarea#message(name='message' placeholder='Message')= (( req_data.message )? req_data.message : '')
         .pure-u-1.pure-padding
