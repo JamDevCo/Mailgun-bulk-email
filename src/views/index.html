@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A layout example that shows off a responsive product landing page.">
+    <title>Landing Page &ndash; Layout Examples &ndash; Pure</title>
+    <link rel="stylesheet" href="pure.css">
+    <link rel="stylesheet" href="modal.css">
+    <link rel="stylesheet" href="styles.css">
+    <!-- <link rel="stylesheet" href="dropzone/dist/min/dropzone.min.css"> -->
+
+    <script src="tinymce/tinymce.min.js"></script>
+</head>
+
+<body>
+
+    <div class="splash-container">
+        <div class="splash">
+            <h1 class="splash-head">Mailgun <br /> <small>Send Email</small></h1>
+            <p class="splash-subhead">
+                Backup Mailgun event logs. By default Mailgun keeps track and stores every event, but only 2 to 30 days.
+            </p>
+            <div>
+                <form class="pure-form pure-form-stacked pure-g" id="credform" method="post">
+                    <div class="pure-u-1-2" style="padding-right: 10px">
+                        <input type="text" name="domain" id="usrDomain" required placeholder="Domain" title="Domain"
+                            style="display: inline-block; margin-right: 10px;" />
+                    </div>
+                    <div class="pure-u-1-2" style="padding-right: 10px">
+                        <input type="password" name="apiKey" id="usrApiKey" required placeholder="API Key"
+                            title="API KEY" />
+                    </div>
+                    <div class="pure-u-1">
+                        <button style=" min-height: 38px; margin-top: 4px; " type="submit"
+                            class="button-success pure-button">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="modal micromodal-slide" id="notice" aria-hidden="true">
+        <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+            <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="notice-title">
+                <header class="modal__header">
+                    <h2 class="modal__title" id="notice-title">
+                        Notice
+                    </h2>
+                    <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
+                </header>
+                <main class="modal__content" id="notice-content">
+                    <p id="notice-message">
+                        Please wait a moment....
+                    </p>
+                </main>
+                <footer class="modal__footer">
+                    <!-- <button class="modal__btn modal__btn-primary">Continue</button> -->
+                    <button class="modal__btn" data-micromodal-close
+                        aria-label="Close this dialog window">Close</button>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- <script src="micromodal.js"></script> -->
+    <script src="jquery/jquery.min.js"></script>
+    <!-- <script src="dropzone/dist/min/dropzone.min.js"></script> -->
+    <script src="app.js"></script>
+</body>
+
+</html>

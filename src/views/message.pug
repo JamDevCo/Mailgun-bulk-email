@@ -1,0 +1,60 @@
+doctype html
+head
+  meta(charset='utf-8')
+  meta(name='viewport' content='width=device-width, initial-scale=1.0')
+  meta(name='description' content='A layout example that shows off a responsive product landing page.')
+  title Landing Page &ndash; Layout Examples &ndash; Pure
+  link(rel='stylesheet' href='pure.css')
+  link(rel='stylesheet' href='modal.css')
+  link(rel='stylesheet' href='styles.css')
+  // <link rel="stylesheet" href="dropzone/dist/min/dropzone.min.css">
+  script(src='tinymce/tinymce.min.js')
+.splash-container
+  .splash
+    h1.splash-head
+      | Mailgun #{domain}
+      br
+      small Send Email
+    p.splash-subhead
+      | Backup Mailgun event logs. By default Mailgun keeps track and stores every event, but only 2 to 30 days.
+    div
+      form#credform.pure-form.pure-form-stacked.pure-g( method='post' action="/message")
+        .pure-u-1-2.pure-padding
+          input#usrDomain(type='text' name='domain' required='' value=domain placeholder='Domain' title='Domain')
+        .pure-u-1-2.pure-padding
+          input#usrApiKey(type='password' name='apiKey' value=apiKey required='' placeholder='API Key' title='API KEY')
+        .pure-u-1-2.pure-padding
+          input#usrDomain(type='text' name='from_name' value=(( req_data.from_name )? req_data.from_name : '') required='' placeholder='From Name' title='From Name')
+        .pure-u-1-2.pure-padding
+          input#usrApiKey(type='text' name='from_email' value=(( req_data.from_email )? req_data.from_email : '') required='' placeholder='From Email' title='From Email')
+        .pure-u-1.pure-padding
+          input#usrApiKey(type='text' name='subject' value=(( req_data.subejct )? req_data.subject : '') required='' placeholder='Subject' title='Subject')
+        .pure-u-1-2.pure-padding
+          select(name='mailing_list', class='form-control')
+            option(value='') Select Mailing List
+            each item in mailing_list
+              option=item.name
+        .pure-u-1.pure-padding
+          textarea#message(name='message' placeholder='Message')= (( req_data.message )? req_data.message : '')
+        .pure-u-1.pure-padding
+          .fallback
+            input(name='file' type='file' multiple='')
+        .pure-u-1.pure-padding
+          button.button-success.pure-button(style=' min-height: 38px; margin-top: 4px; ' type='submit') Send Message
+#notice.modal.micromodal-slide(aria-hidden='true')
+  .modal__overlay(tabindex='-1' data-micromodal-close='')
+    .modal__container(role='dialog' aria-modal='true' aria-labelledby='notice-title')
+      header.modal__header
+        h2#notice-title.modal__title
+          | Notice
+        button.modal__close(aria-label='Close modal' data-micromodal-close='')
+      main#notice-content.modal__content
+        p#notice-message
+          | Please wait a moment....
+      footer.modal__footer
+        // <button class="modal__btn modal__btn-primary">Continue</button>
+        button.modal__btn(data-micromodal-close='' aria-label='Close this dialog window') Close
+// <script src="micromodal.js"></script>
+script(src='jquery/jquery.min.js')
+// <script src="dropzone/dist/min/dropzone.min.js"></script>
+script(src='app.js')
