@@ -69,17 +69,36 @@ app.post('/message', function(req, res) {
     }
 
     var filepaths = [];
-    for(let attachment of req.files.file) {
-        uploadPath = path.join(uploadDir, attachment.name);
-
-        // Use the mv() method to place the file somewhere on your server
-        attachment.mv(uploadPath, function(err) {
-          if (err)
-            return res.status(500).send(err);
-          console.log(`${attachment.name} File uploaded!`);
-        });
-        filepaths.push(uploadPath);
+    try {
+        if ( req.files.file ) {
+            if ( Array.isArray(req.files.file) ) {
+                for(let attachment of req.files.file) {
+                    uploadPath = path.join(uploadDir, attachment.name);
+            
+                    // Use the mv() method to place the file somewhere on your server
+                    attachment.mv(uploadPath, function(err) {
+                    if (err)
+                        return res.status(500).send(err);
+                    console.log(`${attachment.name} File uploaded!`);
+                    });
+                    filepaths.push(uploadPath);
+                }
+            } else {
+                let attachment = req.files.file;
+                uploadPath = path.join(uploadDir, attachment.name);
+                // Use the mv() method to place the file somewhere on your server
+                attachment.mv(uploadPath, function(err) {
+                if (err)
+                    return res.status(500).send(err);
+                console.log(`${attachment.name} File uploaded!`);
+                });
+                filepaths.push(uploadPath);
+            }
+        }
+    } catch (e) {
+        console.log('err', e);
     }
+
 
     const plaintext = convert(req.body.message, {
         wordwrap: 130
