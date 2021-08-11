@@ -5,6 +5,7 @@ var path = require('path');
 const bodyParser = require('body-parser');
 const { convert } = require('html-to-text');
 const router = express.Router();
+var mime = require('mime-types')
 var app = express();
 var Mailgun = require('mailgun-js');
 
@@ -69,9 +70,11 @@ app.post('/message', function(req, res) {
     }
 
     var filepaths = [];
+    var fileAttachments = [];
     try {
         if ( req.files.file ) {
             if ( Array.isArray(req.files.file) ) {
+                var uploadPath;
                 for(let attachment of req.files.file) {
                     uploadPath = path.join(uploadDir, attachment.name);
             
@@ -82,10 +85,17 @@ app.post('/message', function(req, res) {
                     console.log(`${attachment.name} File uploaded!`);
                     });
                     filepaths.push(uploadPath);
+                    fileAttachments.push(
+                        new mailgun.Attachment({
+                            data: attachment.data,
+                            contentType: attachment.mimetype,
+                            filename: path.basename(attachment.name)
+                        }),
+                    );
                 }
             } else {
                 let attachment = req.files.file;
-                uploadPath = path.join(uploadDir, attachment.name);
+                var uploadPath = path.join(uploadDir, attachment.name);
                 // Use the mv() method to place the file somewhere on your server
                 attachment.mv(uploadPath, function(err) {
                 if (err)
@@ -93,6 +103,13 @@ app.post('/message', function(req, res) {
                 console.log(`${attachment.name} File uploaded!`);
                 });
                 filepaths.push(uploadPath);
+                fileAttachments.push(
+                    new mailgun.Attachment({
+                        data: attachment.data,
+                        contentType: attachment.mimetype,
+                        filename: path.basename(attachment.name)
+                    }),
+                );
             }
         }
     } catch (e) {
@@ -113,26 +130,9 @@ app.post('/message', function(req, res) {
     };
 
 
-    for(let fileAttach of filepaths) {
-        try {
-            if (fs.existsSync(fileAttach)) {
-              if ( ! data.attachment ) {
-                  data.attachment = [];
-              }
-              var fileContent = fs.readFileSync(fileAttach);
-              data.attachment.push(
-                new mailgun.Attachment({
-                    data: fileContent,
-                    filename: path.basename(fileAttach)
-                }),
-              );
-            }
-          } catch(err) {
-            console.error(err)
-            continue;
-          }
+    if ( fileAttachments.length >= 0 ) {
+        data.attachment = fileAttachments;
     }
-
     // res.send(JSON.stringify(data));
 
     mailgun.messages().send(data, function(error, body) {
@@ -141,7 +141,7 @@ app.post('/message', function(req, res) {
         var list =  mailgun.lists(req.body.to);
         list.members().list(function (err, members) {
             // `members` is the list of members
-            console.log('send to members: ', members);
+            console.log('send to members: ');
         });
 
         if (error) {

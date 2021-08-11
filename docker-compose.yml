@@ -1,0 +1,8 @@
+version: '3.7'
+
+services:
+    app:
+        image: realworldio/mailgun.bulksend
+        shm_size: "256M"
+        ports:
+            - "19081:19081"
