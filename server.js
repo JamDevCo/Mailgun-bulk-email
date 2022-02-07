@@ -8,6 +8,9 @@ const router = express.Router();
 var mime = require('mime-types')
 var app = express();
 var Mailgun = require('mailgun-js');
+var md5 = require('md5');
+var session = require('express-session')
+var session_store = new session.MemoryStore();
 
 const uploadDir = path.join(__dirname, 'uploads');
 
@@ -16,11 +19,24 @@ app.set('view engine', 'pug');
 app.use(bodyParser.urlencoded({ extended: false}));
 app.use(bodyParser.json())
 app.use(fileUpload());
+app.set('trust proxy', 1) // trust first proxy
+app.use(session({
+  secret: 'secret-key',
+//   resave: false,
+  saveUninitialized: false,
+  cookie: { secure: true },
+  store: session_store
+}));
+
+var passcode = process.env.APP_PASSCODE || "pEala2o2h%RTa21Y";
 
 var server = app.listen(19081, function () {
    var host = server.address().address
    var port = server.address().port
-   console.log("Example app listening at http://%s:%s", host, port)
+   console.log("===> Passcode: ")
+   console.log(passcode)
+   console.log("");
+   console.log("MailGun app listening at http://%s:%s", host, port)
 })
 
 app.use(express.static('src/static/'));
@@ -28,7 +44,23 @@ app.get('/', function (req, res) {
     res.sendFile( __dirname + "/src/views/" + "index.html" );
 });
 
-app.post('/', function(req, res) {
+app.post('/', function (req, res) {
+    if ( req.body.passcode == passcode ) {
+        req.session.authenticated = true;
+        req.session.passhash = md5(req.body.passcode);
+
+        console.log("Got passcode", req.body.passcode);
+        console.log("Got passhas", req.session.passhash);
+        res.render("mailgun", {});
+    } else {
+        req.session.passhash = 0;
+        console.log("Got passhas", req.session.passhash);
+        res.send("Invalid Mailing credentials");
+    }
+});
+
+
+app.post('/mg', function(req, res) {
     try {
         var mailgun = new Mailgun({ apiKey: req.body.apiKey, domain: req.body.domain });
         mailgun.get('/lists/pages', function (error, body) {
@@ -72,10 +104,14 @@ app.post('/message', function(req, res) {
     var filepaths = [];
     var fileAttachments = [];
     try {
-        if ( req.files.file ) {
+        console.log('TEST         REST', req.files);
+        if ( req.files && req.files.file ) {
             if ( Array.isArray(req.files.file) ) {
                 var uploadPath;
                 for(let attachment of req.files.file) {
+                    if ( ! attachment ) {
+                        continue;
+                    }
                     uploadPath = path.join(uploadDir, attachment.name);
             
                     // Use the mv() method to place the file somewhere on your server
