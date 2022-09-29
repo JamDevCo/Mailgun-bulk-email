@@ -29,19 +29,25 @@ app.use(session({
 }));
 
 var passcode = process.env.APP_PASSCODE || "pEala2o2h%RTa21Y";
+var serverPort = process.env.APP_PORT || 19081;
 
-var server = app.listen(19081, function () {
-   var host = server.address().address
-   var port = server.address().port
+var server = app.listen(serverPort, function () {
+   var host = server.address().address;
+   var port = server.address().port;
+
+   if (host == "::") {
+        host = 'http://localhost';
+   }
+
    console.log("===> Passcode: ")
    console.log(passcode)
    console.log("");
-   console.log("MailGun app listening at http://%s:%s", host, port)
+   console.log("MailGun app listening at %s:%s", host, port)
 })
 
 app.use(express.static('src/static/'));
 app.get('/', function (req, res) {
-    res.sendFile( __dirname + "/src/views/" + "index.html" );
+    res.render("index");
 });
 
 app.post('/', function (req, res) {
@@ -55,7 +61,7 @@ app.post('/', function (req, res) {
     } else {
         req.session.passhash = 0;
         console.log("Got passhas", req.session.passhash);
-        res.send("Invalid Mailing credentials");
+        res.render("index", { error: "Invalid Mailing credentials"});
     }
 });
 
@@ -66,17 +72,25 @@ app.post('/mg', function(req, res) {
         mailgun.get('/lists/pages', function (error, body) {
             mailing_list = [];
             mailing_options = "";
-            for(let item of body.items) {
-                mailing_list.push({name: item.name, email: item.address});
-                mailing_options += `<option value="${item.address}">${item.address}</option>`;
+            console.log("body", body);
+            console.log('error', error);
+            if ( ! body.items ) {
+                res.render("mailgun", {
+                    error: body.message
+                });
+            } else {
+                for(let item of body.items) {
+                    mailing_list.push({name: item.name, email: item.address});
+                    mailing_options += `<option value="${item.address}">${item.address}</option>`;
+                }
+                console.log(mailing_list);
+                res.render("message", {
+                    apiKey: req.body.apiKey, domain: req.body.domain,
+                    req_data: req.body,
+                    mailing_list: mailing_list, mailing_options: mailing_options,
+                    msg: 'Send Custom Message to Mailing List.', err: false
+                });
             }
-            console.log(mailing_list);
-            res.render("message", {
-                apiKey: req.body.apiKey, domain: req.body.domain,
-                req_data: req.body,
-                mailing_list: mailing_list, mailing_options: mailing_options,
-                msg: 'Send Custom Message to Mailing List.', err: false
-            });
         });
     } catch (e) {
         res.send("Invalid Mailing credentials");
@@ -104,7 +118,7 @@ app.post('/message', function(req, res) {
     var filepaths = [];
     var fileAttachments = [];
     try {
-        console.log('TEST         REST', req.files);
+        console.log('TEST REST', req.files);
         if ( req.files && req.files.file ) {
             if ( Array.isArray(req.files.file) ) {
                 var uploadPath;

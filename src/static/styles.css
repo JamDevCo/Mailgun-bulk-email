@@ -4,6 +4,16 @@
     box-sizing: border-box;
 }
 
+.error {
+    color: rgb(251 243 243);
+    background: #7d0e0ea1;
+    text-transform: capitalize;
+    padding: 10px;
+    font-weight: bold;
+    max-width: 400px;
+    margin: 0 auto 10px auto;
+}
+
 /*
  * -- BASE STYLES --
  * Most of these are inherited from Base, but I want to change a few.

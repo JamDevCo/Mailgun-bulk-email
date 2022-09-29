@@ -17,6 +17,9 @@ head
       small Send Email
     p.splash-subhead
       | Backup Mailgun event logs. By default Mailgun keeps track and stores every event, but only 2 to 30 days.
+    if ( error )
+      p.error 
+        | #{error}
     div
       form#credform.pure-form.pure-form-stacked.pure-g(method='post' action="/mg")
         .pure-u-1-2(style='padding-right: 10px')
