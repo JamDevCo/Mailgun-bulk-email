@@ -73,7 +73,7 @@ app.post('/mg', function(req, res) {
             mailing_list = [];
             mailing_options = "";
             console.log("body", body);
-            console.log('error', error);
+            console.log('error',)
             if ( ! body.items ) {
                 res.render("mailgun", {
                     error: body.message

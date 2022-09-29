@@ -3,6 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "main": "main.js",
+  "author": {
+    "email": "oshane@osoobe.com",
+    "name": "Oshane Bailey",
+    "url": "https://osoobe.com"
+  },
+  "description": "Mailgun Email",
   "scripts": {
     "serve": "node server.js",
     "start": "electron-forge start",
