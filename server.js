@@ -14,7 +14,7 @@ var session_store = new session.MemoryStore();
 
 const uploadDir = path.join(__dirname, 'uploads');
 
-app.set('views', path.join(__dirname, 'src/views'));
+app.set('views', path.join(__dirname, 'src'));
 app.set('view engine', 'pug');
 app.use(bodyParser.urlencoded({ extended: false}));
 app.use(bodyParser.json())
@@ -45,7 +45,7 @@ var server = app.listen(serverPort, function () {
    console.log("MailGun app listening at %s:%s", host, port)
 })
 
-app.use(express.static('src/static/'));
+app.use(express.static(path.join(__dirname, 'src', 'assets')));
 app.get('/', function (req, res) {
     res.render("index");
 });
