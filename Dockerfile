@@ -9,4 +9,4 @@ RUN mkdir -p /usr/src/app/uploads
 
 EXPOSE 19081
 
-CMD [ "npm", "start"]
+CMD [ "npm", "run", "serve"]

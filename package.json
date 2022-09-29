@@ -4,14 +4,17 @@
   "private": true,
   "main": "main.js",
   "scripts": {
-    "electron": "electron .",
-    "start": "node server.js",
+    "serve": "node server.js",
+    "start": "electron-forge start",
     "prd": "NODE_ENV=production node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
     "cookie-parser": "^1.4.5",
+    "electron-squirrel-startup": "^1.0.0",
     "express": "^4.17.1",
     "express-fileupload": "^1.2.1",
     "express-session": "^1.17.2",
@@ -25,6 +28,38 @@
     "tinymce": "^5.8.2"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.66",
+    "@electron-forge/maker-deb": "^6.0.0-beta.66",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.66",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.66",
+    "@electron-forge/maker-zip": "^6.0.0-beta.66",
     "electron": "^21.0.1"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {},
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "mailgun_send"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
   }
 }
