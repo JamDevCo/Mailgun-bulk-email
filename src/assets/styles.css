@@ -14,6 +14,10 @@
     margin: 0 auto 10px auto;
 }
 
+.text-white {
+    color: white;
+}
+
 /*
  * -- BASE STYLES --
  * Most of these are inherited from Base, but I want to change a few.

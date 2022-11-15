@@ -42,7 +42,12 @@ head
           textarea#message(name='message' placeholder='Message')= (( req_data.message )? req_data.message : '')
         .pure-u-1.pure-padding
           .fallback
+            label(class="text-white") Attachments
             input(name='file' type='file' multiple='')
+        .pure-u-1.pure-padding
+          .fallback
+            label(class="text-white") Template Variable File
+            input(name='varfile' type='file' multiple='')
         .pure-u-1.pure-padding
           button.button-success.pure-button(style=' min-height: 38px; margin-top: 4px; ' type='submit') Send Message
 #notice.modal.micromodal-slide(aria-hidden='true')
