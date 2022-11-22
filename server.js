@@ -12,6 +12,7 @@ var md5 = require('md5');
 var session = require('express-session')
 const { v4: uuidv4 } = require('uuid');
 const { parse } = require('csv-parse/sync');
+const json2csv = require('json2csv');
 
 var session_store = new session.MemoryStore();
 
@@ -54,6 +55,10 @@ var server = app.listen(serverPort, function () {
     console.log("MailGun app listening at %s:%s", host, port)
 })
 
+function slugify(text) {
+    return text.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+}
+
 app.use(express.static(path.join(__dirname, 'src', 'assets')));
 app.get('/', function (req, res) {
     console.log("Check passhas", req.session.passhash);
@@ -83,7 +88,7 @@ app.post('/mg', function (req, res) {
     try {
         var mailgun = new Mailgun({ apiKey: req.body.apiKey, domain: req.body.domain });
 
-        req.session.mgapikey = req.body.apiKey;
+        req.session.apiKey = req.body.apiKey;
         req.session.domain = req.body.domain;
 
         mailgun.get('/lists/pages', function (error, body) {
@@ -101,6 +106,7 @@ app.post('/mg', function (req, res) {
                     mailing_options += `<option value="${item.address}">${item.address}</option>`;
                 }
                 console.log(mailing_list);
+                req.session.mailing_list = JSON.stringify(mailing_list);
                 res.render("message", {
                     apiKey: req.body.apiKey, domain: req.body.domain,
                     req_data: req.body,
@@ -236,6 +242,14 @@ app.post('/message', function (req, res) {
             console.log('send to members: ');
         });
 
+        try {
+            if ( ! mailing_list && req.session.mailing_list ) {
+                mailing_list = JSON.parse(req.session.mailing_list);
+            }
+        } catch (error) {
+            console.log('Error', 'unable to get mailing list');
+        }
+
         if (error) {
             // email not sent
             res.render("message", {
@@ -255,4 +269,50 @@ app.post('/message', function (req, res) {
             });
         }
     });
+});
+
+app.get('/mail/list', (req, res) => {
+    if (!req.session.apiKey) {
+        return res.render("error", { error: "Error: Invalid Mailing credentials" });
+    }
+    var mailgun = new Mailgun({ apiKey: req.session.apiKey, domain: req.session.domain });
+    var mailing_list = [];
+    var mailing_options = "";
+    mailgun.get('/lists/pages', function (error, body) {
+        mailing_options = "";
+        for (let item of body.items) {
+            mailing_list.push({ name: item.name, email: item.address });
+            mailing_options += `<option value="${item.name}">${item.name}</option>`;
+        }
+        console.log(mailing_list);
+
+        res.render("mailing_list", { mailing_list: mailing_list });
+    });
+});
+
+app.get('/mail/list/download', (req, res) => {
+    if (!req.session.apiKey) {
+        return res.render("error", { error: "Error: Invalid Mailing credentials" });
+    }
+    var mailgun = new Mailgun({ apiKey: req.session.apiKey, domain: req.session.domain });
+    var email = req.query.email;
+
+    console.log(`/lists/${email}/members`);
+    mailgun.get(`/lists/${email}/members`, function (error, body) {
+
+        if (error) {
+            console.log(error);
+            return res.render("error", { error: error });
+        }
+
+        console.log('Get Members', body);
+        var fields = ['address', 'name', 'subscribed'];
+        var data = json2csv.parse(body.items, { fields });
+        console.log("CSV Output", data);
+
+        res.attachment(`${slugify(email)}.csv`);
+        res.status(200).send(data);
+
+    });
+
 });

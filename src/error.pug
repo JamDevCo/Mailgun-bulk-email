@@ -12,16 +12,11 @@ head
 .splash-container
   .splash
     <h1 class="splash-head">Mailgun <br /> <small>Send Email</small></h1>
-    p.splash-subhead
-      | Please enter the passcode before continuing
-    if ( error )
-      p.error 
-        | #{error}
-    div
-      form#credform.pure-form.pure-form-stacked.pure-g(method='post')
-        .pure-u-1-2(style='margin: 0 auto')
-          input#passcode(type='password' name='passcode' required='' placeholder='Passcode' title='Passcode')
-        .pure-u-1
-          button.button-success.pure-button(style=' min-height: 38px; margin-top: 4px; ' type='submit') Submit
+    h2.splash-subhead.error.text-white #{error}
+    div(style="text-align: center")
+        a.button-success.d-inline-block.pure-button(href='/', style="margin-right: 10px") Home
+        a.button-success.d-inline-block.pure-button(href='/', style="margin-right: 10px") Message
+        a.button-success.d-inline-block.pure-button(href='/') Mailing List
+    
 script(src='/jquery/jquery.min.js' type="application/javascript")
 script(src='/app.js' type="application/javascript")
