@@ -12,7 +12,7 @@ head
 .splash-container
   .splash
     h1.splash-head
-      | Mailgun #{domain}
+      | Mailgun
       br
       small Send Email
     p.splash-subhead
@@ -38,11 +38,18 @@ head
             option(value='') Select Mailing List
             each item in mailing_list
               option(value=item.email)=item.name + " ( " + item.email + " )"
+        .pure-u-1-4.pure-padding
+          a.button-success.d-inline-block.pure-button(href='/mail/list', target='mailing_list', style="margin-top: 4px;") Download Addresses
         .pure-u-1.pure-padding
           textarea#message(name='message' placeholder='Message')= (( req_data.message )? req_data.message : '')
         .pure-u-1.pure-padding
           .fallback
+            label(class="text-white") Attachments
             input(name='file' type='file' multiple='')
+        .pure-u-1.pure-padding
+          .fallback
+            label(class="text-white") Template Variable File
+            input(name='varfile' type='file' multiple='')
         .pure-u-1.pure-padding
           button.button-success.pure-button(style=' min-height: 38px; margin-top: 4px; ' type='submit') Send Message
 #notice.modal.micromodal-slide(aria-hidden='true')
