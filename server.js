@@ -112,6 +112,7 @@ app.post("/mg", function (req, res) {
 });
 
 app.post("/message", function (req, res) {
+  // Initialize Client and Generate Mailing lists
   try {
     var mailgun = new Mailgun({
       apiKey: req.body.apiKey,
@@ -133,6 +134,8 @@ app.post("/message", function (req, res) {
 
   var filepaths = [];
   var fileAttachments = [];
+
+  // Attach Files to email if files are in form
   try {
     console.log("TEST REST", req.files);
     if (req.files && req.files.file) {

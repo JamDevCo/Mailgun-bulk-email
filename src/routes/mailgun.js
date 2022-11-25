@@ -1,9 +1,15 @@
 /** Express router providing mailgun related routes
  * @module routers/users
  * @requires express
+ * @requires fs
  */
 
 const express = require("express");
+const { convert } = require("html-to-text");
+const path = require("path");
+const fsPromises = require("fs").promises;
+
+const uploadDir = path.join(__dirname, "uploads");
 
 /**
  * Express router to mount mailgun related functions on.
@@ -15,33 +21,54 @@ const router = express.Router();
 
 const { initializeMailgunClient } = require("../util/initializeClient");
 
-router.get("/", (req, res) => {
-  res.send("mailunrouter works").status(200);
-});
+// Declare functions
+const createMailingList = async (req, res) => {
+  const client = initializeMailgunClient(req.headers["mailgun-api-key"]);
+  const listAddress = `${req.body.name}@${req.body.domain}`;
 
-router.post("/list/create", (req, res) => {});
+  let newList = [];
+  try {
+    newList = await client.lists.create({
+      address: listAddress,
+      name: req.body.name,
+      description: req.body.description,
+      access_level: req.body.accessLevel, // readonly (default), members, everyone
+    });
+    console.log("newList", newList);
+    res.status(200).send({ status: "Success", data: newList });
+  } catch (error) {
+    console.error(error);
+    res.status(400).send(error);
+  }
+};
 
-/**
- * Route serving mailing list.
- * @name get/list
- * @function
- * @memberof module:routers/mailgun~mailgunRouter
- * @param {string} apiKey The mailgun api key
- * @param {string} domain The mailgun domain (e.g example.com)
- */
-router.get("/list", async (req, res) => {
+const addMembers = async (req, res) => {
+  const client = initializeMailgunClient(req.headers["mailgun-api-key"]);
+  try {
+    const members = await client.lists.members.createMembers(req.body.address, {
+      members: req.body.members,
+      upsert: "yes",
+    });
+
+    return members;
+  } catch (error) {
+    res.status(400).send({ status: "Error", error: error });
+  }
+};
+
+const getMailingLists = async (req, res) => {
   let mailingList = [];
   let mailingOptions = "";
-  const client = initializeMailgunClient(req.body.apiKey);
+
+  const client = initializeMailgunClient(req.headers["mailgun-api-key"]);
 
   // Pull mailing list from mailgun
-  const list = await client.lists
-    .list()
-    .then((data) => {
-      console.log(data);
-      return data;
-    })
-    .catch((err) => console.error(err));
+  let list = {};
+  try {
+    list = await client.lists.list();
+  } catch (error) {
+    res.status(400).send({ error: error });
+  }
 
   // If no list items render error
   if (!list.items) {
@@ -56,16 +83,165 @@ router.get("/list", async (req, res) => {
     mailingOptions += `<option value="${item.address}">${item.address}</option>`;
   }
 
-  // Render data to page
+  return { mailing_list: mailingList, mailing_options: mailingOptions };
+};
+
+const attachFile = async (uploadDir, attachment, fileAttachments) => {
+  // Uploads file to server
+  let uploadPath = path.join(uploadDir, attachment.name);
+
+  // Move the file somewhere onto your server
+  attachment.mv(uploadPath, (err) => {
+    if (err) {
+      return res.status(500).send(err);
+    }
+    console.log(`${attachment.name} File uploaded!`);
+  });
+
+  // Prepare file for mailgun
+  const file = {
+    filename: attachment.name,
+    data: await fsPromises.readFile(uploadPath),
+  };
+
+  fileAttachments.push(file);
+};
+const attachFiles = async (req, res, fileAttachments, uploadDir) => {
+  // Check for attachment
+
+  if (req.files) {
+    if (Array.isArray(req.files.file)) {
+      for (let attachment of req.files.file) {
+        if (!attachment) {
+          continue;
+        }
+        attachFile(uploadDir, attachment, fileAttachments);
+      }
+    } else {
+      attachFile(uploadDir, attachment, fileAttachments);
+    }
+  }
+};
+
+const sendMessage = async (
+  req,
+  res,
+  fileAttachments,
+  mailgunClient,
+  mailingList
+) => {
+  // Convert HTML Message to plaintext
+  const plaintext = convert(req.body.message, {
+    wordwrap: 130,
+  });
+
+  const emailData = {
+    from: req.body.from_email,
+    to: req.body.mailing_list,
+    subject: req.body.subject,
+    text: plaintext,
+    html: req.body.message,
+  };
+
+  if (fileAttachments.length >= 0) {
+    emailData.attachment = fileAttachments;
+  }
+
+  // Attempt to send email
+  try {
+    const result = await mailgunClient.messages.create(
+      req.body.domain,
+      emailData
+    );
+    console.log("Email sent");
+    console.log(result);
+    res.render("message", {
+      apiKey: req.headers["mailgun-api-key"],
+      domain: req.body.domain,
+      req_data: req.body,
+      mailing_list: mailingList.mailing_list,
+      mailing_options: mailingList.mailing_options,
+      msg: "Message successfully sent.",
+      err: false,
+    });
+  } catch (err) {
+    res.status(400).send({ error: err });
+    // res.render("message", {
+    //   apiKey: req.headers["mailgun-api-key"],
+    //   domain: req.body.domain,
+    //   req_data: req.body,
+    //   mailing_list: mailingList.mailing_list,
+    //   mailing_options: mailingList.mailing_options,
+    //   msg: "Error. Something went wrong.",
+    //   err: true,
+    // });
+  }
+};
+/**
+ * Route to create mailing list with members
+ * @name post/list/create
+ * @function
+ * @memberof module:routers/mailgun~mailgunRouter
+ * @param {string} apiKey The mailgun api key
+ * @param {string} domain The mailgun domain (e.g example.com)
+ * @param {string} name The name of the mailing list
+ * @param {string} description
+ * @param {string} accessLevel
+ * @param {string[]} members The members to be added to the list
+ */
+router.post("/list/create", async (req, res) => {
+  createMailingList(req, res);
+});
+
+router.post("/list/add-members", async (req, res) => {
+  const members = addMembers(req, res);
+  res.status(201).send({ status: "Success", data: { ...members } });
+});
+
+router.delete("/list/delete", async (req, res) => {
+  const client = initializeMailgunClient(req.headers["mailgun-api-key"]);
+  try {
+    const result = await client.lists.destroy(req.body.mailing_list_address);
+    res.status(200).send({
+      status: "Success",
+      data: result,
+    });
+  } catch (err) {
+    res.status(400).send({ status: "Error", error: err });
+  }
+});
+
+/**
+ * Route serving mailing list.
+ * @name get/list
+ * @function
+ * @memberof module:routers/mailgun~mailgunRouter
+ * @param {string} apiKey The mailgun api key
+ * @param {string} domain The mailgun domain (e.g example.com)
+ */
+router.get("/list", async (req, res) => {
+  const result = await getMailingLists(req, res);
   res.render("message", {
-    apiKey: req.body.apiKey,
+    apiKey: req.headers["mailgun-api-key"],
     domain: req.body.domain,
     req_data: req.body,
-    mailing_list: mailingList,
-    mailing_options: mailingOptions,
+    mailing_list: result.mailing_list,
+    mailing_options: result.mailing_options,
     msg: "Send Custom Message to Mailing List.",
     err: false,
   });
+});
+
+router.post("/message", async (req, res) => {
+  const client = initializeMailgunClient(req.headers["mailgun-api-key"]);
+  const mailingList = await getMailingLists(req, res);
+
+  let fileAttachments = [];
+  attachFiles(req, res, fileAttachments, uploadDir);
+  sendMessage(req, res, fileAttachments, client, mailingList);
+  // console.log(plaintext);
+
+  // res.status(200).send({ list: mailingList, message: req.body.message });
 });
 
 module.exports = router;
