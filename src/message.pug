@@ -22,7 +22,7 @@ head
     else
       p.success.splash-subhead= msg
     div
-      form#credform.pure-form.pure-form-stacked.pure-g(enctype="multipart/form-data" method='post' action="/message")
+      form#credform.pure-form.pure-form-stacked.pure-g(enctype="multipart/form-data" method='post' action="/mailgun/message")
         .pure-u-1-2.pure-padding
           input#usrDomain(type='text' name='domain' required='' value=domain placeholder='Domain' title='Domain')
         .pure-u-1-2.pure-padding

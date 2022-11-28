@@ -74,43 +74,6 @@ app.post("/", function (req, res) {
   }
 });
 
-app.post("/mg", function (req, res) {
-  try {
-    var mailgun = new Mailgun({
-      apiKey: req.body.apiKey,
-      domain: req.body.domain,
-    });
-    mailgun.get("/lists/pages", function (error, body) {
-      mailing_list = [];
-      mailing_options = "";
-      console.log("body", body);
-      console.log("error");
-      if (!body.items) {
-        res.render("mailgun", {
-          error: body.message,
-        });
-      } else {
-        for (let item of body.items) {
-          mailing_list.push({ name: item.name, email: item.address });
-          mailing_options += `<option value="${item.address}">${item.address}</option>`;
-        }
-        console.log(mailing_list);
-        res.render("message", {
-          apiKey: req.body.apiKey,
-          domain: req.body.domain,
-          req_data: req.body,
-          mailing_list: mailing_list,
-          mailing_options: mailing_options,
-          msg: "Send Custom Message to Mailing List.",
-          err: false,
-        });
-      }
-    });
-  } catch (e) {
-    res.send("Invalid Mailing credentials");
-  }
-});
-
 app.post("/message", function (req, res) {
   // Initialize Client and Generate Mailing lists
   try {

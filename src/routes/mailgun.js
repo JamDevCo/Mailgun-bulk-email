@@ -23,7 +23,7 @@ const { initializeMailgunClient } = require("../util/initializeClient");
 
 // Declare functions
 const createMailingList = async (req, res) => {
-  const client = initializeMailgunClient(req.body.api_key);
+  const client = initializeMailgunClient(req.body.apiKey);
   const listAddress = `${req.body.name}@${req.body.domain}`;
 
   let newList = [];
@@ -43,7 +43,7 @@ const createMailingList = async (req, res) => {
 };
 
 const getMembers = async (req, res) => {
-  const client = initializeMailgunClient(req.body.api_key);
+  const client = initializeMailgunClient(req.body.apiKey);
   try {
     const members = await client.lists.members.listMembers(
       req.body.mailing_list
@@ -76,7 +76,7 @@ const addRecipientVariable = (recipientVariables, field, members) => {
 };
 
 const addMembers = async (req, res) => {
-  const client = initializeMailgunClient(req.body.api_key);
+  const client = initializeMailgunClient(req.body.apiKey);
   try {
     const members = await client.lists.members.createMembers(req.body.address, {
       members: req.body.members,
@@ -92,8 +92,9 @@ const addMembers = async (req, res) => {
 const getMailingLists = async (req, res) => {
   let mailingList = [];
   let mailingOptions = "";
+  console.log(req.body);
 
-  const client = initializeMailgunClient(req.body.api_key);
+  const client = initializeMailgunClient(req.body.apiKey);
 
   // Pull mailing list from mailgun
   let list = {};
@@ -191,7 +192,7 @@ const sendMessage = async (
     console.log("Email sent");
     console.log(result);
     res.render("message", {
-      apiKey: req.body.api_key,
+      apiKey: req.body.apiKey,
       domain: req.body.domain,
       req_data: req.body,
       mailing_list: mailingList.mailing_list,
@@ -201,7 +202,7 @@ const sendMessage = async (
     });
   } catch (err) {
     res.render("message", {
-      apiKey: req.body.api_key,
+      apiKey: req.body.apiKey,
       domain: req.body.domain,
       req_data: req.body,
       mailing_list: mailingList.mailing_list,
@@ -233,7 +234,7 @@ router.post("/list/add-members", async (req, res) => {
 });
 
 router.delete("/list/delete", async (req, res) => {
-  const client = initializeMailgunClient(req.body.api_key);
+  const client = initializeMailgunClient(req.body.apiKey);
   try {
     const result = await client.lists.destroy(req.body.mailing_list_address);
     res.status(200).send({
@@ -253,10 +254,10 @@ router.delete("/list/delete", async (req, res) => {
  * @param {string} apiKey The mailgun api key
  * @param {string} domain The mailgun domain (e.g example.com)
  */
-router.get("/list", async (req, res) => {
+router.post("/list", async (req, res) => {
   const result = await getMailingLists(req, res);
   res.render("message", {
-    apiKey: req.body.api_key,
+    apiKey: req.body.apiKey,
     domain: req.body.domain,
     req_data: req.body,
     mailing_list: result.mailing_list,
@@ -271,7 +272,7 @@ router.get("/list/members", async (req, res) => {
   res.status(200).send({ data: members });
 });
 router.post("/message", async (req, res) => {
-  const client = initializeMailgunClient(req.body.api_key);
+  const client = initializeMailgunClient(req.body.apiKey);
   const mailingList = await getMailingLists(req, res);
 
   let fileAttachments = [];
