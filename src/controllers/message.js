@@ -32,6 +32,7 @@ const sendMessage = async (
       req.body.domain,
       emailData
     );
+
     console.log("Email sent");
     console.log(result);
     res.render("message", {
@@ -56,4 +57,26 @@ const sendMessage = async (
   }
 };
 
-module.exports = { sendMessage };
+/**
+ * Adds recipient variable to list of available recipient variables
+ */
+const addRecipientVariable = (recipientVariables, field, members) => {
+  for (let member of members) {
+    // Attempt to set recipient variable if recipient has the field
+
+    if (!recipientVariables[member.address]) {
+      console.log(recipientVariables[member.address]);
+      recipientVariables[member.address] = {};
+    }
+
+    try {
+      console.log(recipientVariables[member.address][field]);
+      recipientVariables[member.address][field] = member[field];
+    } catch (err) {
+      console.log(err);
+      continue;
+    }
+  }
+};
+
+module.exports = { sendMessage, addRecipientVariable };
