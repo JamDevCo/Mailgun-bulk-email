@@ -23,7 +23,7 @@ const { initializeMailgunClient } = require("../util/initializeClient");
 
 // Declare functions
 const createMailingList = async (req, res) => {
-  const client = initializeMailgunClient(req.headers["mailgun-api-key"]);
+  const client = initializeMailgunClient(req.body.api_key);
   const listAddress = `${req.body.name}@${req.body.domain}`;
 
   let newList = [];
@@ -42,8 +42,38 @@ const createMailingList = async (req, res) => {
   }
 };
 
+const getMembers = async (req, res) => {
+  const client = initializeMailgunClient(req.body.api_key);
+  try {
+    const members = await client.lists.members.listMembers(
+      req.body.mailing_list
+    );
+    return members;
+  } catch (error) {
+    console.log(error);
+    res.status(400).send({ error: error });
+  }
+};
+
+const addRecipientField = (fieldName, member) => {};
+
+/**
+ * Adds recipient variable to list of available recipient variables
+ */
+const addRecipientVariable = (recipientVariables, field, members) => {
+  for (let i = 0; i < members.lenth; i++) {
+    let currentMember = members[i];
+    // Attempt to set recipient variable if recipient has the field
+    try {
+      recipientVariables[currentMember.address][field] = currentMember.field;
+    } catch (err) {
+      continue;
+    }
+  }
+};
+
 const addMembers = async (req, res) => {
-  const client = initializeMailgunClient(req.headers["mailgun-api-key"]);
+  const client = initializeMailgunClient(req.body.api_key);
   try {
     const members = await client.lists.members.createMembers(req.body.address, {
       members: req.body.members,
@@ -60,7 +90,7 @@ const getMailingLists = async (req, res) => {
   let mailingList = [];
   let mailingOptions = "";
 
-  const client = initializeMailgunClient(req.headers["mailgun-api-key"]);
+  const client = initializeMailgunClient(req.body.api_key);
 
   // Pull mailing list from mailgun
   let list = {};
@@ -156,7 +186,7 @@ const sendMessage = async (
     console.log("Email sent");
     console.log(result);
     res.render("message", {
-      apiKey: req.headers["mailgun-api-key"],
+      apiKey: req.body.api_key,
       domain: req.body.domain,
       req_data: req.body,
       mailing_list: mailingList.mailing_list,
@@ -165,16 +195,15 @@ const sendMessage = async (
       err: false,
     });
   } catch (err) {
-    res.status(400).send({ error: err });
-    // res.render("message", {
-    //   apiKey: req.headers["mailgun-api-key"],
-    //   domain: req.body.domain,
-    //   req_data: req.body,
-    //   mailing_list: mailingList.mailing_list,
-    //   mailing_options: mailingList.mailing_options,
-    //   msg: "Error. Something went wrong.",
-    //   err: true,
-    // });
+    res.render("message", {
+      apiKey: req.body.api_key,
+      domain: req.body.domain,
+      req_data: req.body,
+      mailing_list: mailingList.mailing_list,
+      mailing_options: mailingList.mailing_options,
+      msg: "Error. Something went wrong.",
+      err: true,
+    });
   }
 };
 /**
@@ -199,7 +228,7 @@ router.post("/list/add-members", async (req, res) => {
 });
 
 router.delete("/list/delete", async (req, res) => {
-  const client = initializeMailgunClient(req.headers["mailgun-api-key"]);
+  const client = initializeMailgunClient(req.body.api_key);
   try {
     const result = await client.lists.destroy(req.body.mailing_list_address);
     res.status(200).send({
@@ -222,7 +251,7 @@ router.delete("/list/delete", async (req, res) => {
 router.get("/list", async (req, res) => {
   const result = await getMailingLists(req, res);
   res.render("message", {
-    apiKey: req.headers["mailgun-api-key"],
+    apiKey: req.body.api_key,
     domain: req.body.domain,
     req_data: req.body,
     mailing_list: result.mailing_list,
@@ -232,13 +261,21 @@ router.get("/list", async (req, res) => {
   });
 });
 
+router.get("/list/members", async (req, res) => {
+  const members = await getMembers(req, res);
+  res.status(200).send({ data: members });
+});
 router.post("/message", async (req, res) => {
-  const client = initializeMailgunClient(req.headers["mailgun-api-key"]);
+  const client = initializeMailgunClient(req.body.api_key);
   const mailingList = await getMailingLists(req, res);
 
   let fileAttachments = [];
   attachFiles(req, res, fileAttachments, uploadDir);
-  sendMessage(req, res, fileAttachments, client, mailingList);
+
+  // Add Recipient Varaibles
+  const members = await getMembers(req, res);
+  res.status(200).send({ data: members });
+  // sendMessage(req, res, fileAttachments, client, mailingList);
   // console.log(plaintext);
 
   // res.status(200).send({ list: mailingList, message: req.body.message });
