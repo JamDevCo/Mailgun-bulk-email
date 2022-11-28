@@ -5,11 +5,22 @@
  */
 
 const express = require("express");
-const { convert } = require("html-to-text");
-const path = require("path");
-const fsPromises = require("fs").promises;
 
+const path = require("path");
 const uploadDir = path.join(__dirname, "uploads");
+
+// Module Imports
+const { initializeMailgunClient } = require("../util/initializeClient");
+const {
+  createMailingList,
+  getMailingLists,
+} = require("../controllers/mailingList");
+
+const { getMembers, addMembers } = require("../controllers/members");
+
+const { attachFiles } = require("../controllers/attachments");
+
+const { sendMessage } = require("../controllers/message");
 
 /**
  * Express router to mount mailgun related functions on.
@@ -19,54 +30,22 @@ const uploadDir = path.join(__dirname, "uploads");
  */
 const router = express.Router();
 
-const { initializeMailgunClient } = require("../util/initializeClient");
-
-// Declare functions
-const createMailingList = async (req, res) => {
-  const client = initializeMailgunClient(req.body.apiKey);
-  const listAddress = `${req.body.name}@${req.body.domain}`;
-
-  let newList = [];
-  try {
-    newList = await client.lists.create({
-      address: listAddress,
-      name: req.body.name,
-      description: req.body.description,
-      access_level: req.body.accessLevel, // readonly (default), members, everyone
-    });
-    console.log("newList", newList);
-    res.status(200).send({ status: "Success", data: newList });
-  } catch (error) {
-    console.error(error);
-    res.status(400).send(error);
-  }
-};
-
-const getMembers = async (req, res) => {
-  const client = initializeMailgunClient(req.body.apiKey);
-  try {
-    const members = await client.lists.members.listMembers(
-      req.body.mailing_list
-    );
-    return members;
-  } catch (error) {
-    console.log(error);
-    res.status(400).send({ error: error });
-  }
-};
-
-const addRecipientField = (fieldName, member) => {};
-
 /**
  * Adds recipient variable to list of available recipient variables
  */
 const addRecipientVariable = (recipientVariables, field, members) => {
-  //console.log(members);
+  // console.log(recipientVariables);
   for (let member of members) {
     // Attempt to set recipient variable if recipient has the field
-    console.log(member);
-    recipientVariables[member.address] = {};
+    // console.log(member);
+    // console.log(field);
+    if (!recipientVariables[member.address]) {
+      console.log(recipientVariables[member.address]);
+      recipientVariables[member.address] = {};
+    }
+
     try {
+      console.log(recipientVariables[member.address][field]);
       recipientVariables[member.address][field] = member[field];
     } catch (err) {
       console.log(err);
@@ -75,143 +54,61 @@ const addRecipientVariable = (recipientVariables, field, members) => {
   }
 };
 
-const addMembers = async (req, res) => {
-  const client = initializeMailgunClient(req.body.apiKey);
-  try {
-    const members = await client.lists.members.createMembers(req.body.address, {
-      members: req.body.members,
-      upsert: "yes",
-    });
+// const sendMessage = async (
+//   req,
+//   res,
+//   fileAttachments,
+//   mailgunClient,
+//   mailingList,
+//   recipientVariables
+// ) => {
+//   // Convert HTML Message to plaintext
+//   const plaintext = convert(req.body.message, {
+//     wordwrap: 130,
+//   });
 
-    return members;
-  } catch (error) {
-    res.status(400).send({ status: "Error", error: error });
-  }
-};
+//   const emailData = {
+//     from: req.body.from_email,
+//     to: req.body.mailing_list,
+//     subject: req.body.subject,
+//     text: plaintext,
+//     html: req.body.message,
+//     "recipient-variables": JSON.stringify(recipientVariables),
+//   };
 
-const getMailingLists = async (req, res) => {
-  let mailingList = [];
-  let mailingOptions = "";
-  console.log(req.body);
+//   if (fileAttachments.length >= 0) {
+//     emailData.attachment = fileAttachments;
+//   }
 
-  const client = initializeMailgunClient(req.body.apiKey);
-
-  // Pull mailing list from mailgun
-  let list = {};
-  try {
-    list = await client.lists.list();
-  } catch (error) {
-    res.status(400).send({ error: error });
-  }
-
-  // If no list items render error
-  if (!list.items) {
-    res.render("mailgun", {
-      error: list.message,
-    });
-  }
-
-  // Render html element for each mailing list
-  for (let item of list.items) {
-    mailingList.push({ name: item.name, email: item.address });
-    mailingOptions += `<option value="${item.address}">${item.address}</option>`;
-  }
-
-  return { mailing_list: mailingList, mailing_options: mailingOptions };
-};
-
-const attachFile = async (uploadDir, attachment, fileAttachments) => {
-  // Uploads file to server
-  let uploadPath = path.join(uploadDir, attachment.name);
-
-  // Move the file somewhere onto your server
-  attachment.mv(uploadPath, (err) => {
-    if (err) {
-      return res.status(500).send(err);
-    }
-    console.log(`${attachment.name} File uploaded!`);
-  });
-
-  // Prepare file for mailgun
-  const file = {
-    filename: attachment.name,
-    data: await fsPromises.readFile(uploadPath),
-  };
-
-  fileAttachments.push(file);
-};
-const attachFiles = async (req, res, fileAttachments, uploadDir) => {
-  // Check for attachment
-
-  if (req.files) {
-    if (Array.isArray(req.files.file)) {
-      for (let attachment of req.files.file) {
-        if (!attachment) {
-          continue;
-        }
-        attachFile(uploadDir, attachment, fileAttachments);
-      }
-    } else {
-      attachFile(uploadDir, attachment, fileAttachments);
-    }
-  }
-};
-
-const sendMessage = async (
-  req,
-  res,
-  fileAttachments,
-  mailgunClient,
-  mailingList,
-  recipientVariables
-) => {
-  // Convert HTML Message to plaintext
-  const plaintext = convert(req.body.message, {
-    wordwrap: 130,
-  });
-
-  const emailData = {
-    from: req.body.from_email,
-    to: req.body.mailing_list,
-    subject: req.body.subject,
-    text: plaintext,
-    html: req.body.message,
-    "recipient-variables": JSON.stringify(recipientVariables),
-  };
-
-  if (fileAttachments.length >= 0) {
-    emailData.attachment = fileAttachments;
-  }
-
-  // Attempt to send email
-  try {
-    const result = await mailgunClient.messages.create(
-      req.body.domain,
-      emailData
-    );
-    console.log("Email sent");
-    console.log(result);
-    res.render("message", {
-      apiKey: req.body.apiKey,
-      domain: req.body.domain,
-      req_data: req.body,
-      mailing_list: mailingList.mailing_list,
-      mailing_options: mailingList.mailing_options,
-      msg: "Message successfully sent.",
-      err: false,
-    });
-  } catch (err) {
-    res.render("message", {
-      apiKey: req.body.apiKey,
-      domain: req.body.domain,
-      req_data: req.body,
-      mailing_list: mailingList.mailing_list,
-      mailing_options: mailingList.mailing_options,
-      msg: "Error. Something went wrong.",
-      err: true,
-    });
-  }
-};
+//   // Attempt to send email
+//   try {
+//     const result = await mailgunClient.messages.create(
+//       req.body.domain,
+//       emailData
+//     );
+//     console.log("Email sent");
+//     console.log(result);
+//     res.render("message", {
+//       apiKey: req.body.apiKey,
+//       domain: req.body.domain,
+//       req_data: req.body,
+//       mailing_list: mailingList.mailing_list,
+//       mailing_options: mailingList.mailing_options,
+//       msg: "Message successfully sent.",
+//       err: false,
+//     });
+//   } catch (err) {
+//     res.render("message", {
+//       apiKey: req.body.apiKey,
+//       domain: req.body.domain,
+//       req_data: req.body,
+//       mailing_list: mailingList.mailing_list,
+//       mailing_options: mailingList.mailing_options,
+//       msg: "Error. Something went wrong.",
+//       err: true,
+//     });
+//   }
+// };
 /**
  * Route to create mailing list with members
  * @name post/list/create
@@ -280,14 +177,23 @@ router.post("/message", async (req, res) => {
 
   // Generate Recipient Variables
   const members = await getMembers(req, res);
-  const recipientVariableFields = req.body.recipient_variables;
+  const defaultVariables = ["name", "address", "subscribed"];
+
+  // Add new recipient variables alongside defaults
+  const recipientVariableFields = [
+    ...defaultVariables,
+    ...req.body.recipient_variables,
+  ];
+
+  // console.log(recipientVariableFields);
   const recipientVariables = {};
 
   // Add recipient variables
   for (let field of recipientVariableFields) {
+    // console.log(field);
     addRecipientVariable(recipientVariables, field, members.items);
   }
-  // res.status(200).send({ data: members, vars: recipientVariables });
+
   sendMessage(
     req,
     res,
@@ -296,9 +202,8 @@ router.post("/message", async (req, res) => {
     mailingList,
     recipientVariables
   );
-  // console.log(plaintext);
 
-  // res.status(200).send({ list: mailingList, message: req.body.message });
+  res.status(200).send({ message: req.body.message });
 });
 
 module.exports = router;
