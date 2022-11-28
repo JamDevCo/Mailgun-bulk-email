@@ -61,12 +61,15 @@ const addRecipientField = (fieldName, member) => {};
  * Adds recipient variable to list of available recipient variables
  */
 const addRecipientVariable = (recipientVariables, field, members) => {
-  for (let i = 0; i < members.lenth; i++) {
-    let currentMember = members[i];
+  //console.log(members);
+  for (let member of members) {
     // Attempt to set recipient variable if recipient has the field
+    console.log(member);
+    recipientVariables[member.address] = {};
     try {
-      recipientVariables[currentMember.address][field] = currentMember.field;
+      recipientVariables[member.address][field] = member[field];
     } catch (err) {
+      console.log(err);
       continue;
     }
   }
@@ -158,7 +161,8 @@ const sendMessage = async (
   res,
   fileAttachments,
   mailgunClient,
-  mailingList
+  mailingList,
+  recipientVariables
 ) => {
   // Convert HTML Message to plaintext
   const plaintext = convert(req.body.message, {
@@ -171,6 +175,7 @@ const sendMessage = async (
     subject: req.body.subject,
     text: plaintext,
     html: req.body.message,
+    "recipient-variables": JSON.stringify(recipientVariables),
   };
 
   if (fileAttachments.length >= 0) {
@@ -272,10 +277,24 @@ router.post("/message", async (req, res) => {
   let fileAttachments = [];
   attachFiles(req, res, fileAttachments, uploadDir);
 
-  // Add Recipient Varaibles
+  // Generate Recipient Variables
   const members = await getMembers(req, res);
-  res.status(200).send({ data: members });
-  // sendMessage(req, res, fileAttachments, client, mailingList);
+  const recipientVariableFields = req.body.recipient_variables;
+  const recipientVariables = {};
+
+  // Add recipient variables
+  for (let field of recipientVariableFields) {
+    addRecipientVariable(recipientVariables, field, members.items);
+  }
+  // res.status(200).send({ data: members, vars: recipientVariables });
+  sendMessage(
+    req,
+    res,
+    fileAttachments,
+    client,
+    mailingList,
+    recipientVariables
+  );
   // console.log(plaintext);
 
   // res.status(200).send({ list: mailingList, message: req.body.message });
