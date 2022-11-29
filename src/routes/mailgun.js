@@ -99,7 +99,7 @@ router.get("/list/download", async (req, res) => {
   downloadMailingList(req, res);
 });
 router.get("/list/members", async (req, res) => {
-  const members = await getMembers(req, res);
+  const members = await getMembers(req, res, req.body.mailing_list);
   res.status(200).send({ data: members });
 });
 router.post("/message", async (req, res) => {
@@ -110,7 +110,7 @@ router.post("/message", async (req, res) => {
   attachFiles(req, res, fileAttachments, uploadDir);
 
   // Generate Recipient Variables
-  const members = await getMembers(req, res);
+  const members = await getMembers(req, res, req.body.mailing_list);
   const defaultVariables = ["name", "address", "subscribed"];
 
   // Add new recipient variables alongside defaults
@@ -137,7 +137,7 @@ router.post("/message", async (req, res) => {
     recipientVariables
   );
 
-  res.status(200).send({ message: req.body.message });
+  // res.status(200).send({ message: req.body.message });
 });
 
 module.exports = router;

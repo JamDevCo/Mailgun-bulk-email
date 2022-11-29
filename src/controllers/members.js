@@ -1,11 +1,9 @@
 const { initializeMailgunClient } = require("../util/initializeClient");
 
-const getMembers = async (req, res) => {
+const getMembers = async (req, res, mailingList) => {
   const client = initializeMailgunClient(req.session.apiKey);
   try {
-    const members = await client.lists.members.listMembers(
-      req.body.mailing_list
-    );
+    const members = await client.lists.members.listMembers(mailingList);
     return members;
   } catch (error) {
     console.log(error);

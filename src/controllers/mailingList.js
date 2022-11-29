@@ -68,7 +68,7 @@ const downloadMailingList = async (req, res) => {
   const email = req.query.email || "";
 
   // Get mailing list members
-  const members = await getMembers(req, res);
+  const members = await getMembers(req, res, email);
 
   const fields = ["address", "name", "subscribed"];
   const data = json2csv.parse(members.items, { fields });
