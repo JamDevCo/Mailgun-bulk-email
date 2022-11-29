@@ -1,0 +1,33 @@
+doctype html
+head
+  meta(charset='utf-8')
+  meta(name='viewport' content='width=device-width, initial-scale=1.0')
+  meta(name='description' content='A layout example that shows off a responsive product landing page.')
+  title MailGun Send
+  link(rel='stylesheet' type="text/css" href='/pure.css')
+  link(rel='stylesheet' type="text/css" href='/modal.css')
+  link(rel='stylesheet' type="text/css" href='/styles.css')
+  // <link rel="stylesheet" href="dropzone/dist/min/dropzone.min.css">
+  script(src='/tinymce/tinymce.min.js')
+.splash-container
+  .splash
+    <h1 class="splash-head">Mailgun <br /> <small>Mailing List</small></h1>
+    .card
+        h4.text-left Mailing Lists
+        table
+            thead
+                tr
+                    th.text-left(width="20%") Name
+                    th.text-left(width="60%") Email
+                    th.text-center(width="20%") Action
+            tbody
+                each item in mailing_list
+                    tr
+                        td.text-left(width="20%") #{item.name}
+                        td.text-left
+                            .overflow-email(title=item.email) #{item.email}
+                        td.text-center(width="20%")
+                            a.button-success.d-inline-block.pure-button(href='/mailgun/list/download?email='+item.email) View
+    
+script(src='/jquery/jquery.min.js' type="application/javascript")
+script(src='/app.js' type="application/javascript")

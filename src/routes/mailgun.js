@@ -14,6 +14,7 @@ const { initializeMailgunClient } = require("../util/initializeClient");
 const {
   createMailingList,
   getMailingLists,
+  downloadMailingList,
 } = require("../controllers/mailingList");
 const { getMembers, addMembers } = require("../controllers/members");
 const { attachFiles } = require("../controllers/attachments");
@@ -82,6 +83,9 @@ router.post("/list", async (req, res) => {
   });
 });
 
+router.get("/list/download", async (req, res) => {
+  downloadMailingList(req, res);
+});
 router.get("/list/members", async (req, res) => {
   const members = await getMembers(req, res);
   res.status(200).send({ data: members });
