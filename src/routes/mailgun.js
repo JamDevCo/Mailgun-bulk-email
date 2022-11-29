@@ -7,7 +7,7 @@
 const express = require("express");
 
 const path = require("path");
-const uploadDir = path.join(__dirname, "uploads");
+const uploadDir = path.join(__basedir, "uploads");
 
 // Module Imports
 const { initializeMailgunClient } = require("../util/initializeClient");
@@ -106,8 +106,7 @@ router.post("/message", async (req, res) => {
   const client = initializeMailgunClient(req.body.apiKey);
   const mailingList = await getMailingLists(req, res);
 
-  let fileAttachments = [];
-  attachFiles(req, res, fileAttachments, uploadDir);
+  let fileAttachments = await attachFiles(req, res, uploadDir);
 
   // Generate Recipient Variables
   const members = await getMembers(req, res, req.body.mailing_list);

@@ -16,7 +16,7 @@ const json2csv = require("json2csv");
 
 var session_store = new session.MemoryStore();
 
-const uploadDir = path.join(__dirname, "uploads");
+global.__basedir = __dirname;
 
 app.set("views", path.join(__dirname, "src"));
 app.set("view engine", "pug");
@@ -94,48 +94,6 @@ const testRouter = require("./src/routes/index");
 
 app.use("/test", testRouter);
 app.use("/mailgun", mailgunRouter);
-
-app.post("/mg", function (req, res) {
-  try {
-    var mailgun = new Mailgun({
-      apiKey: req.body.apiKey,
-      domain: req.body.domain,
-    });
-
-    req.session.apiKey = req.body.apiKey;
-    req.session.domain = req.body.domain;
-
-    mailgun.get("/lists/pages", function (error, body) {
-      mailing_list = [];
-      mailing_options = "";
-      console.log("body", body);
-      console.log("error");
-      if (!body.items) {
-        res.render("mailgun", {
-          error: body.message,
-        });
-      } else {
-        for (let item of body.items) {
-          mailing_list.push({ name: item.name, email: item.address });
-          mailing_options += `<option value="${item.address}">${item.address}</option>`;
-        }
-        console.log(mailing_list);
-        req.session.mailing_list = JSON.stringify(mailing_list);
-        res.render("message", {
-          apiKey: req.body.apiKey,
-          domain: req.body.domain,
-          req_data: req.body,
-          mailing_list: mailing_list,
-          mailing_options: mailing_options,
-          msg: "Send Custom Message to Mailing List.",
-          err: false,
-        });
-      }
-    });
-  } catch (e) {
-    res.send("Invalid Mailing credentials");
-  }
-});
 
 app.use(express.static(path.join(__dirname, "src", "assets")));
 app.get("/", function (req, res) {
