@@ -39,7 +39,7 @@ head
             each item in mailing_list
               option(value=item.email)=item.name + " ( " + item.email + " )"
         .pure-u-1-4.pure-padding
-          a.button-success.d-inline-block.pure-button(href='/mail/list', target='mailing_list', style="margin-top: 4px;") Download Addresses
+          a.button-success.d-inline-block.pure-button(href='/mailgun/list', target='mailing_list', style="margin-top: 4px;") Download Addresses
         .pure-u-1.pure-padding
           textarea#message(name='message' placeholder='Message')= (( req_data.message )? req_data.message : '')
         .pure-u-1.pure-padding

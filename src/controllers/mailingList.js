@@ -6,7 +6,7 @@ const json2csv = require("json2csv");
 const { slugify } = require("../util/stringUtil");
 
 const createMailingList = async (req, res) => {
-  const client = initializeMailgunClient(req.body.apiKey);
+  const client = initializeMailgunClient(req.session.apiKey);
   const listAddress = `${req.body.name}@${req.body.domain}`;
 
   let newList = [];
@@ -28,9 +28,17 @@ const createMailingList = async (req, res) => {
 const getMailingLists = async (req, res) => {
   let mailingList = [];
   let mailingOptions = "";
+  let apiKey = undefined;
   console.log(req.body);
+  console.log(`Session is`);
+  console.log(req.session);
 
-  const client = initializeMailgunClient(req.body.apiKey);
+  if (!req.session.apiKey) {
+    apiKey = req.body.apiKey;
+  } else {
+    apiKey = req.session.apiKey;
+  }
+  const client = initializeMailgunClient(apiKey);
 
   // Pull mailing list from mailgun
   let list = {};

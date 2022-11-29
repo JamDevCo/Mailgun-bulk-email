@@ -40,6 +40,14 @@ const router = express.Router();
  * @param {string} accessLevel
  * @param {string[]} members The members to be added to the list
  */
+
+router.get("/list", async (req, res) => {
+  const mailingList = await getMailingLists(req, res);
+
+  res.render("mailing_list", {
+    mailing_list: mailingList.mailing_list,
+  });
+});
 router.post("/list/create", async (req, res) => {
   createMailingList(req, res);
 });
@@ -70,8 +78,12 @@ router.delete("/list/delete", async (req, res) => {
  * @param {string} apiKey The mailgun api key
  * @param {string} domain The mailgun domain (e.g example.com)
  */
-router.post("/list", async (req, res) => {
+router.post("/", async (req, res) => {
   const result = await getMailingLists(req, res);
+
+  req.session.apiKey = req.body.apiKey;
+  req.session.domain = req.body.domain;
+
   res.render("message", {
     apiKey: req.body.apiKey,
     domain: req.body.domain,

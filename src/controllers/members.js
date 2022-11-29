@@ -1,7 +1,7 @@
 const { initializeMailgunClient } = require("../util/initializeClient");
 
 const getMembers = async (req, res) => {
-  const client = initializeMailgunClient(req.body.apiKey);
+  const client = initializeMailgunClient(req.session.apiKey);
   try {
     const members = await client.lists.members.listMembers(
       req.body.mailing_list
