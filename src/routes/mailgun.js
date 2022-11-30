@@ -21,7 +21,10 @@ const {
   attachFiles,
   generateRecipientVariablesCSV,
 } = require("../controllers/attachments");
-const { sendMessage, addRecipientVariable } = require("../controllers/message");
+const {
+  sendMessage,
+  generateRecipientVariables,
+} = require("../controllers/message");
 
 /**
  * Express router to mount mailgun related functions on.
@@ -119,14 +122,13 @@ router.post("/message", async (req, res) => {
 
   // Generate Recipient Variables
   const members = await getMembers(req, res, req.body.mailing_list);
-  const defaultVariables = ["name", "address", "subscribed"];
 
-  // console.log(recipientVariableFields);
   let recipientVariables = {};
   if (req.files && req.files.varfile) {
-    // Update member if recipient variables are uploaded
+    // Create recipient variables from CSV
     recipientVariables = await generateRecipientVariablesCSV(req);
 
+    // Update member variables if recipient variables are uploaded
     for (let member of members.items) {
       member.vars = recipientVariables[member.address];
     }
@@ -141,11 +143,8 @@ router.post("/message", async (req, res) => {
     console.log(updatedMembers);
   }
 
-  // Add default recipient variables
-  for (let field of defaultVariables) {
-    // console.log(field);
-    addRecipientVariable(recipientVariables, field, members.items);
-  }
+  // Update recipient variables for mail
+  generateRecipientVariables(recipientVariables, members.items);
 
   // sendMessage(
   //   req,

@@ -60,23 +60,31 @@ const sendMessage = async (
 /**
  * Adds recipient variable to list of available recipient variables
  */
-const addRecipientVariable = (recipientVariables, field, members) => {
+const generateRecipientVariables = (recipientVariables, members) => {
+  let defaultFields = ["name", "address", "subscribed"];
   for (let member of members) {
-    // Attempt to set recipient variable if recipient has the field
-
+    // Create empty object to store recipient variables if none are present
     if (!recipientVariables[member.address]) {
       console.log(recipientVariables[member.address]);
       recipientVariables[member.address] = {};
     }
 
-    try {
-      console.log(recipientVariables[member.address][field]);
-      recipientVariables[member.address][field] = member[field];
-    } catch (err) {
-      console.log(err);
-      continue;
-    }
+    // Add existing variables to recipient variables
+    console.log("Updating fields from recipient");
+    Object.assign(recipientVariables[member.address], { ...member.vars });
+
+    // Add default fields
+    console.log("Adding default fields");
+    for (let field of defaultFields)
+      try {
+        recipientVariables[member.address][field] = member[field];
+      } catch (err) {
+        console.log(err);
+        continue;
+      }
   }
+
+  return recipientVariables;
 };
 
-module.exports = { sendMessage, addRecipientVariable };
+module.exports = { sendMessage, generateRecipientVariables };
