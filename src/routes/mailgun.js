@@ -17,7 +17,10 @@ const {
   downloadMailingList,
 } = require("../controllers/mailingList");
 const { getMembers, addMembers } = require("../controllers/members");
-const { attachFiles } = require("../controllers/attachments");
+const {
+  attachFiles,
+  generateRecipientVariablesCSV,
+} = require("../controllers/attachments");
 const { sendMessage, addRecipientVariable } = require("../controllers/message");
 
 /**
@@ -120,6 +123,9 @@ router.post("/message", async (req, res) => {
 
   // console.log(recipientVariableFields);
   const recipientVariables = {};
+  const csvCustomVars = await generateRecipientVariablesCSV(req);
+
+  console.log("Recipient flattene vars");
 
   // Add recipient variables
   for (let field of recipientVariableFields) {
@@ -127,16 +133,16 @@ router.post("/message", async (req, res) => {
     addRecipientVariable(recipientVariables, field, members.items);
   }
 
-  sendMessage(
-    req,
-    res,
-    fileAttachments,
-    client,
-    mailingList,
-    recipientVariables
-  );
+  // sendMessage(
+  //   req,
+  //   res,
+  //   fileAttachments,
+  //   client,
+  //   mailingList,
+  //   recipientVariables
+  // );
 
-  // res.status(200).send({ message: req.body.message });
+  res.status(200).send({ message: csvCustomVars });
 });
 
 module.exports = router;
