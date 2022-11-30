@@ -68,6 +68,8 @@ const generateRecipientVariablesCSV = async (req) => {
 
     const jsonVars = await csv().fromString(var_data);
 
+    // Flatten json so that ".com" can be included in the email address for mailgun
+    // Currently it's parsed as { "email@domain" : { "com" { ... }} }
     let recipientVars = flatten(jsonVars, { maxDepth: 3 });
 
     console.log(recipientVars);
