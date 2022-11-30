@@ -122,9 +122,10 @@ router.post("/message", async (req, res) => {
   ];
 
   // console.log(recipientVariableFields);
-  const recipientVariables = {};
-  const csvCustomVars = await generateRecipientVariablesCSV(req);
-
+  let recipientVariables = {};
+  if (req.files && req.files.varfile) {
+    recipientVariables = await generateRecipientVariablesCSV(req);
+  }
   console.log("Recipient flattene vars");
 
   // Add recipient variables
@@ -133,16 +134,16 @@ router.post("/message", async (req, res) => {
     addRecipientVariable(recipientVariables, field, members.items);
   }
 
-  // sendMessage(
-  //   req,
-  //   res,
-  //   fileAttachments,
-  //   client,
-  //   mailingList,
-  //   recipientVariables
-  // );
+  sendMessage(
+    req,
+    res,
+    fileAttachments,
+    client,
+    mailingList,
+    recipientVariables
+  );
 
-  res.status(200).send({ message: csvCustomVars });
+  // res.status(200).send({ vars: recipientVariables });
 });
 
 module.exports = router;
