@@ -11,17 +11,17 @@ const getMembers = async (req, res, mailingList) => {
   }
 };
 
-const addMembers = async (req, res) => {
-  const client = initializeMailgunClient(req.body.apiKey);
+const addMembers = async (mailingList, members, client, res) => {
+  console.log(members);
   try {
-    const members = await client.lists.members.createMembers(req.body.address, {
-      members: req.body.members,
+    const result = await client.lists.members.createMembers(mailingList, {
+      members: members,
       upsert: "yes",
     });
 
-    return members;
+    return result;
   } catch (error) {
-    res.status(400).send({ status: "Error", error: error });
+    return res.status(400).send({ status: "Error", error: error });
   }
 };
 

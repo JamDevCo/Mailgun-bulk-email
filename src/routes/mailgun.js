@@ -56,7 +56,13 @@ router.post("/list/create", async (req, res) => {
 });
 
 router.post("/list/add-members", async (req, res) => {
-  const members = addMembers(req, res);
+  const client = initializeMailgunClient(req.body.apiKey);
+  const members = addMembers(
+    req.body.mailing_list,
+    req.body.members,
+    client,
+    res
+  );
   res.status(201).send({ status: "Success", data: { ...members } });
 });
 
@@ -115,35 +121,42 @@ router.post("/message", async (req, res) => {
   const members = await getMembers(req, res, req.body.mailing_list);
   const defaultVariables = ["name", "address", "subscribed"];
 
-  // Add new recipient variables alongside defaults
-  const recipientVariableFields = [
-    ...defaultVariables,
-    ...(req.body.recipient_variables || []),
-  ];
-
   // console.log(recipientVariableFields);
   let recipientVariables = {};
   if (req.files && req.files.varfile) {
+    // Update member if recipient variables are uploaded
     recipientVariables = await generateRecipientVariablesCSV(req);
-  }
-  console.log("Recipient flattene vars");
 
-  // Add recipient variables
-  for (let field of recipientVariableFields) {
+    for (let member of members.items) {
+      member.vars = recipientVariables[member.address];
+    }
+
+    const updatedMembers = await addMembers(
+      req.body.mailing_list,
+      members.items,
+      client,
+      res
+    );
+    console.log("Update members");
+    console.log(updatedMembers);
+  }
+
+  // Add default recipient variables
+  for (let field of defaultVariables) {
     // console.log(field);
     addRecipientVariable(recipientVariables, field, members.items);
   }
 
-  sendMessage(
-    req,
-    res,
-    fileAttachments,
-    client,
-    mailingList,
-    recipientVariables
-  );
+  // sendMessage(
+  //   req,
+  //   res,
+  //   fileAttachments,
+  //   client,
+  //   mailingList,
+  //   recipientVariables
+  // );
 
-  // res.status(200).send({ vars: recipientVariables });
+  res.status(200).send({ vars: recipientVariables, members: members.items });
 });
 
 module.exports = router;
