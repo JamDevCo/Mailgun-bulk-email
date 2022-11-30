@@ -146,16 +146,16 @@ router.post("/message", async (req, res) => {
   // Update recipient variables for mail
   generateRecipientVariables(recipientVariables, members.items);
 
-  // sendMessage(
-  //   req,
-  //   res,
-  //   fileAttachments,
-  //   client,
-  //   mailingList,
-  //   recipientVariables
-  // );
+  sendMessage(
+    req,
+    res,
+    fileAttachments,
+    client,
+    mailingList,
+    recipientVariables
+  );
 
-  res.status(200).send({ vars: recipientVariables, members: members.items });
+  // res.status(200).send({ vars: recipientVariables, members: members.items });
 });
 
 module.exports = router;
