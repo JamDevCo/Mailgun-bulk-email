@@ -63,28 +63,31 @@ const generateRecipientVariablesCSV = async (req) => {
   let custom_vars = {};
   if (req.files && req.files.varfile) {
     console.log("Mailgun variables", req.files);
+    var var_data = req.files.varfile.data.toString("utf8");
+    const csv_var_data = parse(var_data, {
+      columns: true,
+      skip_empty_lines: true,
+    });
+    console.log("Var data", csv_var_data);
+    for (const element of csv_var_data) {
+      if (!element.email) {
+        continue;
+      }
 
-    let var_data = req.files.varfile.data.toString("utf8");
+      // Remove whitespace from values
+      for (let [key, value] of Object.entries(element)) {
+        element[key] = value.trim();
+      }
 
-    const jsonVars = await csv().fromString(var_data);
-
-    // Flatten json so that ".com" can be included in the email address for mailgun
-    // Currently it's parsed as { "email@domain" : { "com" { ... }} }
-    let recipientVars = flatten(jsonVars, { maxDepth: 3 });
-
-    console.log(recipientVars);
-
-    // Remove redundant "0." added to object keys from flattening
-    for (let recipientVar of Object.keys(recipientVars)) {
-      recipientVars[recipientVar.replace("0.", "")] =
-        recipientVars[recipientVar];
-
-      delete recipientVars[recipientVar];
+      var cemail = element.email;
+      var cdata = Object.assign({}, element);
+      delete cdata["email"];
+      custom_vars[cemail] = cdata;
     }
-
-    console.log(recipientVars);
-    return recipientVars;
+    console.log("Variables", custom_vars);
   }
+
+  return custom_vars;
 };
 
 module.exports = { attachFile, attachFiles, generateRecipientVariablesCSV };
