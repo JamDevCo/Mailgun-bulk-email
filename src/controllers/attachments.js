@@ -8,23 +8,22 @@ const attachFile = async (res, uploadDir, attachment, fileAttachments) => {
   // Uploads file to server
   let uploadPath = path.join(uploadDir, attachment.name);
 
+  console.log(attachment);
   // Move the file somewhere onto your server
   attachment.mv(uploadPath, (err) => {
     if (err) {
       return res.status(500).send(err);
     } else {
-      console.log(`${attachment.name} File uploaded!`);
+      // Prepare file for mailgun
+      const file = {
+        filename: attachment.name,
+        data: fs.readFileSync(uploadPath),
+      };
+
+      console.log(file);
+      fileAttachments.push(file);
     }
   });
-
-  // Prepare file for mailgun
-  const file = {
-    filename: attachment.name,
-    data: fs.readFileSync(uploadPath),
-  };
-
-  console.log(file);
-  fileAttachments.push(file);
 };
 const attachFiles = async (req, res, uploadDir) => {
   // Check for attachment

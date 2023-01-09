@@ -70,9 +70,12 @@ const generateRecipientVariables = (recipientVariables, members) => {
     }
 
     // Add existing variables to recipient variables
-    console.log("Updating fields from recipient");
+    console.log("Updating fields from recipient Old");
+    console.log(member);
     Object.assign(recipientVariables[member.address], { ...member.vars });
 
+    console.log("new Fields");
+    console.log(member);
     // Add default fields
     console.log("Adding default fields");
     for (let field of defaultFields)

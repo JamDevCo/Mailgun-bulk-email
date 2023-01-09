@@ -130,7 +130,7 @@ router.post("/message", async (req, res) => {
 
     // Update member variables if recipient variables are uploaded
     for (let member of members.items) {
-      member.vars = recipientVariables[member.address];
+      member.vars = { ...member.vars, ...recipientVariables[member.address] };
     }
 
     const updatedMembers = await addMembers(
@@ -155,7 +155,11 @@ router.post("/message", async (req, res) => {
   //   recipientVariables
   // );
 
-  res.status(200).send({ vars: recipientVariables, members: members.items });
+  res.status(200).send({
+    vars: recipientVariables,
+    members: members.items,
+    attachments: fileAttachments,
+  });
 });
 
 module.exports = router;
