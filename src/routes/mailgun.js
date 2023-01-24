@@ -82,6 +82,15 @@ router.delete("/list/delete", async (req, res) => {
   }
 });
 
+router.post("/upload", async (req, res) => {
+  console.log("Called upload");
+
+  console.log("\n\n");
+  if (req.files) {
+    console.log(req.files.file);
+    const file = req.files.file;
+  }
+});
 /**
  * Route serving mailing list.
  * @name get/list

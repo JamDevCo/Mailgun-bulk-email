@@ -1,5 +1,5 @@
 const { convert } = require("html-to-text");
-
+const { JSDOM } = require("jsdom");
 const sendMessage = async (
   req,
   res,
@@ -12,6 +12,14 @@ const sendMessage = async (
   const plaintext = convert(req.body.message, {
     wordwrap: 130,
   });
+
+  const dom = new JSDOM(req.body.message);
+
+  try {
+    const images = dom.window.document.querySelectorAll("img");
+  } catch (err) {
+    console.log(er);
+  }
 
   const emailData = {
     from: req.body.from_email,
