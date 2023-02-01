@@ -1,4 +1,10 @@
 $(document).ready(function () {
+  var pretendFetchedData = [
+    { title: "100x100", value: "http://via.placeholder.com/100x100" },
+    { title: "120x120", value: "http://via.placeholder.com/120x120" },
+    { title: "150x150", value: "http://via.placeholder.com/150x150" },
+  ];
+
   tinymce.init({
     selector: "textarea#message",
     height: 300,
@@ -8,24 +14,34 @@ $(document).ready(function () {
       "searchreplace visualblocks code fullscreen",
       "insertdatetime media table paste code help wordcount image",
     ],
+
     a11y_advanced_options: true,
     toolbar:
       "undo redo | formatselect | " +
       "bold italic backcolor | alignleft aligncenter " +
       "alignright alignjustify | bullist numlist outdent indent | " +
       "table tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol" +
-      "removeformat | help ",
+      "removeformat | image | help ",
     table_toolbar:
       "tableprops tabledelete | tableinsertrowbefore tableinsertrowafter tabledeleterow | tableinsertcolbefore tableinsertcolafter tabledeletecol",
-    images_upload_url: "/mailgun/upload",
+    image_prepend_url: "cid:",
     content_style:
       "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
 
     file_picker_types: "image",
     image_title: true,
-
+    // image_list: pretendFetchedData,
     /* enable automatic uploads of images represented by blob or data URIs*/
     automatic_uploads: true,
+
+    // setup: function (editor) {
+    //   editor.on("NodeChange", function (e) {
+    //     if (e.element.tagName === "IMG") {
+    //       e.element.setAttribute("data-original", e.element.currentSrc);
+    //       e.element.setAttribute("src", `cid:${e.element.currentSrc}`);
+    //     }
+    //   });
+    // },
 
     /* and here's our custom image picker*/
     file_picker_callback: function (cb, value, meta) {
