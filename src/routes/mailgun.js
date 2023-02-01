@@ -119,10 +119,12 @@ router.post("/", async (req, res) => {
 router.get("/list/download", async (req, res) => {
   downloadMailingList(req, res);
 });
+
 router.get("/list/members", async (req, res) => {
   const members = await getMembers(req, res, req.body.mailing_list);
   res.status(200).send({ data: members });
 });
+
 router.post("/message", async (req, res) => {
   const client = initializeMailgunClient(req.body.apiKey);
   const mailingList = await getMailingLists(req, res);

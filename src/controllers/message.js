@@ -1,5 +1,41 @@
 const { convert } = require("html-to-text");
 const { JSDOM } = require("jsdom");
+
+
+
+
+const getImage = (html, fileAttachments) => {
+  var images = [];
+  html.replace(/src=(\"|\')([^\"]*)(\"|\')/g, function (match, url) { // eslint-disable-line
+    var codec, extension;
+    console.log(match)
+    if (match.indexOf('data:image/png;base64,') != -1) {
+      codec = 'png';
+      extension = '.png';
+    } else if (match.indexOf('data:image/jpeg;base64,') != -1) {
+      codec = 'jpeg';
+      extension = '.jpg';
+    }
+
+    console.log(codec, extension, match.indexOf('data:image/png;base64,'))
+    if (codec) {
+      var name = 'image' + images.length + extension,
+        base64 = match.replace('data:image/' + codec + ';base64,', '');
+      buffer = new Buffer(base64, 'base64');
+      fileAttachments.push({
+        contentType: 'image/' + codec,
+        filename: name,
+        data: buffer,
+        knownLength: buffer.length,
+      });
+      return `src='${match.replace(match, 'cid:' + name)}'`;
+    }
+    return match;
+  });
+
+  return html;
+}
+
 const sendMessage = async (
   req,
   res,
@@ -8,12 +44,15 @@ const sendMessage = async (
   mailingList,
   recipientVariables
 ) => {
+
+  var html = getImage(req.body.message, fileAttachments);
+
   // Convert HTML Message to plaintext
-  const plaintext = convert(req.body.message, {
+  const plaintext = convert(html, {
     wordwrap: 130,
   });
 
-  const dom = new JSDOM(req.body.message);
+  const dom = new JSDOM(html);
 
   try {
     const images = dom.window.document.querySelectorAll("img");
@@ -26,7 +65,7 @@ const sendMessage = async (
     to: req.body.mailing_list,
     subject: req.body.subject,
     text: plaintext,
-    html: req.body.message,
+    html: html,
     "recipient-variables": JSON.stringify(recipientVariables),
   };
 
