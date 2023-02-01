@@ -17,8 +17,14 @@ const {
   downloadMailingList,
 } = require("../controllers/mailingList");
 const { getMembers, addMembers } = require("../controllers/members");
-const { attachFiles } = require("../controllers/attachments");
-const { sendMessage, addRecipientVariable } = require("../controllers/message");
+const {
+  attachFiles,
+  generateRecipientVariablesCSV,
+} = require("../controllers/attachments");
+const {
+  sendMessage,
+  generateRecipientVariables,
+} = require("../controllers/message");
 
 /**
  * Express router to mount mailgun related functions on.
@@ -53,7 +59,13 @@ router.post("/list/create", async (req, res) => {
 });
 
 router.post("/list/add-members", async (req, res) => {
-  const members = addMembers(req, res);
+  const client = initializeMailgunClient(req.body.apiKey);
+  const members = addMembers(
+    req.body.mailing_list,
+    req.body.members,
+    client,
+    res
+  );
   res.status(201).send({ status: "Success", data: { ...members } });
 });
 
@@ -70,6 +82,15 @@ router.delete("/list/delete", async (req, res) => {
   }
 });
 
+router.post("/upload", async (req, res) => {
+  console.log("Called upload");
+
+  console.log("\n\n");
+  if (req.files) {
+    console.log(req.files.file);
+    const file = req.files.file;
+  }
+});
 /**
  * Route serving mailing list.
  * @name get/list
@@ -110,22 +131,29 @@ router.post("/message", async (req, res) => {
 
   // Generate Recipient Variables
   const members = await getMembers(req, res, req.body.mailing_list);
-  const defaultVariables = ["name", "address", "subscribed"];
 
-  // Add new recipient variables alongside defaults
-  const recipientVariableFields = [
-    ...defaultVariables,
-    ...(req.body.recipient_variables || []),
-  ];
+  let recipientVariables = {};
+  if (req.files && req.files.varfile) {
+    // Create recipient variables from CSV
+    recipientVariables = await generateRecipientVariablesCSV(req);
 
-  // console.log(recipientVariableFields);
-  const recipientVariables = {};
+    // Update member variables if recipient variables are uploaded
+    for (let member of members.items) {
+      member.vars = { ...recipientVariables[member.address] };
+    }
 
-  // Add recipient variables
-  for (let field of recipientVariableFields) {
-    // console.log(field);
-    addRecipientVariable(recipientVariables, field, members.items);
+    const updatedMembers = await addMembers(
+      req.body.mailing_list,
+      members.items,
+      client,
+      res
+    );
+    console.log("Update members");
+    console.log(updatedMembers);
   }
+
+  // Update recipient variables for mail
+  generateRecipientVariables(recipientVariables, members.items);
 
   sendMessage(
     req,
@@ -136,7 +164,11 @@ router.post("/message", async (req, res) => {
     recipientVariables
   );
 
-  // res.status(200).send({ message: req.body.message });
+  // res.status(200).send({
+  //   vars: recipientVariables,
+  //   members: members.items,
+  //   attachments: fileAttachments,
+  // });
 });
 
 module.exports = router;

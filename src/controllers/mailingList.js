@@ -6,7 +6,7 @@ const json2csv = require("json2csv");
 const { slugify } = require("../util/stringUtil");
 
 const createMailingList = async (req, res) => {
-  const client = initializeMailgunClient(req.session.apiKey);
+  const client = initializeMailgunClient(req.body.apiKey);
   const listAddress = `${req.body.name}@${req.body.domain}`;
 
   let newList = [];
