@@ -155,16 +155,29 @@ router.post("/message", async (req, res) => {
   }
 
   // Update recipient variables for mail
-  generateRecipientVariables(recipientVariables, members.items);
+  try {
+    generateRecipientVariables(recipientVariables, members.items);
+    sendMessage(
+      req,
+      res,
+      fileAttachments,
+      client,
+      mailingList,
+      recipientVariables
+    );
+  } catch (error) {
+    console.error(error);
+    res.render("message", {
+      apiKey: req.body.apiKey,
+      domain: req.body.domain,
+      req_data: req.body,
+      mailing_list: mailingList.mailing_list,
+      mailing_options: mailingList.mailing_options,
+      msg: "Error. Something went wrong.",
+      err: true,
+    });
 
-  sendMessage(
-    req,
-    res,
-    fileAttachments,
-    client,
-    mailingList,
-    recipientVariables
-  );
+  }
 
   // res.status(200).send({
   //   vars: recipientVariables,
