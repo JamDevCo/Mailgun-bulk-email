@@ -1,42 +1,66 @@
 const { convert } = require("html-to-text");
 const { JSDOM } = require("jsdom");
+const HTMLParser = require('node-html-parser');
 
-const getImage = (html, fileAttachments, inLineImages) => {
-  var images = [];
-  let result = html.replace(
-    /src=(\"|\')([^\"]*)(\"|\')/g,
-    function (match, url) {
-      // eslint-disable-line
-      var codec, extension;
-      console.log("Regex Match");
-      console.log(match);
-      if (match.indexOf("data:image/png;base64,") != -1) {
-        codec = "png";
-        extension = ".png";
-      } else if (match.indexOf("data:image/jpeg;base64,") != -1) {
-        codec = "jpeg";
-        extension = ".jpg";
-      }
 
-      console.log(codec, extension, match.indexOf("data:image/png;base64,"));
-      if (codec) {
-        var name = "image" + images.length + extension,
-          base64 = match.replace("data:image/" + codec + ";base64,", "");
-        buffer = Buffer.from(base64, "base64");
-        inLineImages.push({
-          contentType: "image/" + codec,
-          filename: name,
-          data: buffer,
-          //   data: buffer,
-          cid: name,
-          knownLength: buffer.length,
-        });
-        return `src='${match.replace(match, "cid:" + name)}'`;
-      }
-      return match;
+const signatures = {
+  JVBERi0: "application/pdf",
+  R0lGODdh: "image/gif",
+  R0lGODlh: "image/gif",
+  iVBORw0KGgo: "image/png",
+  "/9j/": "image/jpg"
+};
+
+const detectMimeType = function (b64) {
+  for (var s in signatures) {
+    if (b64.indexOf(s) === 0) {
+      return signatures[s];
     }
-  );
+  }
+}
 
+const parseAttachment = (html, fileAttachments, inLineImages) => {
+  var images = [];
+
+  var html_parsed = HTMLParser.parse(html);
+  var images = html_parsed.querySelectorAll('img');
+  for (let index = 0; index < images.length; index++) {
+    const img = images[index];
+    var codec, extension;
+    var image_src = img.getAttribute('src');
+
+    if (image_src.toLowerCase().indexOf("data:image/png;base64,") != -1) {
+      codec = "png";
+      extension = ".png";
+    } else if (image_src.toLowerCase().indexOf("data:image/jpeg;base64,") != -1) {
+      codec = "jpeg";
+      extension = ".jpg";
+    } else if (image_src.toLowerCase().indexOf("data:image/webp;base64,") != -1) {
+      codec = "webp";
+      extension = ".webp";
+    } else if (image_src.toLowerCase().indexOf("data:image/gif;base64,") != -1) {
+      codec = "gif";
+      extension = ".gif";
+    }
+
+    if (codec) {
+      var name = "image" + index + extension,
+        base64 = image_src.replace("data:image/" + codec + ";base64,", "");
+      var buffer = Buffer.from(base64, "base64");
+      inLineImages.push({
+        contentType: "image/" + codec,
+        filename: name,
+        data: buffer,
+        //   data: buffer,
+        cid: name,
+        knownLength: buffer.length,
+      });
+      // return `src='${match.replace(match, "cid:" + name)}'`;
+      img.setAttribute('src', "cid:" + name);
+    }
+    
+  }
+  let result = html_parsed.toString();
   return result;
 };
 
@@ -49,21 +73,15 @@ const sendMessage = async (
   recipientVariables
 ) => {
   console.log("Attachments");
-  console.log(req.body.message.slice(0, 300));
+  // console.log(req.body.message.slice(0, 300));
   let inLineImages = [];
-  var html = getImage(req.body.message, fileAttachments, inLineImages);
+  var html = parseAttachment(req.body.message, fileAttachments, inLineImages);
   // const html = req.body.message;
   // Convert HTML Message to plaintext
+  console.log(html);
   const plaintext = convert(html, {
     wordwrap: 130,
   });
-
-  const dom = new JSDOM(html, { resources: "usable" });
-  try {
-    console.log(dom.window.document.querySelector("p img").src.slice(0, 400));
-  } catch (error) {
-    console.log("No Image found");
-  }
 
   const emailData = {
     from: req.body.from_email,
@@ -87,7 +105,7 @@ const sendMessage = async (
     );
 
     console.log("Email sent");
-    console.log(result);
+    // console.log(result);
     res.render("message", {
       apiKey: req.body.apiKey,
       domain: req.body.domain,
