@@ -1,40 +1,44 @@
 const { convert } = require("html-to-text");
 const { JSDOM } = require("jsdom");
 
-
-
-
-const getImage = (html, fileAttachments) => {
+const getImage = (html, fileAttachments, inLineImages) => {
   var images = [];
-  html.replace(/src=(\"|\')([^\"]*)(\"|\')/g, function (match, url) { // eslint-disable-line
-    var codec, extension;
-    console.log(match)
-    if (match.indexOf('data:image/png;base64,') != -1) {
-      codec = 'png';
-      extension = '.png';
-    } else if (match.indexOf('data:image/jpeg;base64,') != -1) {
-      codec = 'jpeg';
-      extension = '.jpg';
-    }
+  let result = html.replace(
+    /src=(\"|\')([^\"]*)(\"|\')/g,
+    function (match, url) {
+      // eslint-disable-line
+      var codec, extension;
+      console.log("Regex Match");
+      console.log(match);
+      if (match.indexOf("data:image/png;base64,") != -1) {
+        codec = "png";
+        extension = ".png";
+      } else if (match.indexOf("data:image/jpeg;base64,") != -1) {
+        codec = "jpeg";
+        extension = ".jpg";
+      }
 
-    console.log(codec, extension, match.indexOf('data:image/png;base64,'))
-    if (codec) {
-      var name = 'image' + images.length + extension,
-        base64 = match.replace('data:image/' + codec + ';base64,', '');
-      buffer = new Buffer(base64, 'base64');
-      fileAttachments.push({
-        contentType: 'image/' + codec,
-        filename: name,
-        data: buffer,
-        knownLength: buffer.length,
-      });
-      return `src='${match.replace(match, 'cid:' + name)}'`;
+      console.log(codec, extension, match.indexOf("data:image/png;base64,"));
+      if (codec) {
+        var name = "image" + images.length + extension,
+          base64 = match.replace("data:image/" + codec + ";base64,", "");
+        buffer = Buffer.from(base64, "base64");
+        inLineImages.push({
+          contentType: "image/" + codec,
+          filename: name,
+          data: buffer,
+          //   data: buffer,
+          cid: name,
+          knownLength: buffer.length,
+        });
+        return `src='${match.replace(match, "cid:" + name)}'`;
+      }
+      return match;
     }
-    return match;
-  });
+  );
 
-  return html;
-}
+  return result;
+};
 
 const sendMessage = async (
   req,
@@ -44,20 +48,21 @@ const sendMessage = async (
   mailingList,
   recipientVariables
 ) => {
-
-  var html = getImage(req.body.message, fileAttachments);
-
+  console.log("Attachments");
+  console.log(req.body.message.slice(0, 300));
+  let inLineImages = [];
+  var html = getImage(req.body.message, fileAttachments, inLineImages);
+  // const html = req.body.message;
   // Convert HTML Message to plaintext
   const plaintext = convert(html, {
     wordwrap: 130,
   });
 
-  const dom = new JSDOM(html);
-
+  const dom = new JSDOM(html, { resources: "usable" });
   try {
-    const images = dom.window.document.querySelectorAll("img");
-  } catch (err) {
-    console.log(er);
+    console.log(dom.window.document.querySelector("p img").src.slice(0, 400));
+  } catch (error) {
+    console.log("No Image found");
   }
 
   const emailData = {
@@ -66,6 +71,7 @@ const sendMessage = async (
     subject: req.body.subject,
     text: plaintext,
     html: html,
+    inline: inLineImages,
     "recipient-variables": JSON.stringify(recipientVariables),
   };
 
