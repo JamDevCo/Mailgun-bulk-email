@@ -1,10 +1,9 @@
 const { initializeMailgunClient } = require("../util/initializeClient");
-const { getMembers } = require("./members");
+const { getMembers, getAllMembers } = require("./members");
 
 const { parse } = require("csv-parse/sync");
 const json2csv = require("json2csv");
 const { slugify } = require("../util/stringUtil");
-
 const createMailingList = async (req, res) => {
   const client = initializeMailgunClient(req.body.apiKey);
   const listAddress = `${req.body.name}@${req.body.domain}`;
@@ -68,10 +67,13 @@ const downloadMailingList = async (req, res) => {
   const email = req.query.email || "";
 
   // Get mailing list members
-  const members = await getMembers(req, res, email);
+  const members = await getAllMembers(req, res, email);
+  // console.log(members);
+  // const fields = ["address", "name", "subscribed"];
+  // const data = json2csv.parse(members.items, { fields });
 
   const fields = ["address", "name", "subscribed"];
-  const data = json2csv.parse(members.items, { fields });
+  const data = json2csv.parse(members, { fields });
 
   res.attachment(`${slugify(email)}.csv`);
   res.status(200).send(data);
