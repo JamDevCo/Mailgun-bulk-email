@@ -3,6 +3,7 @@ const { initializeMailgunClient } = require("../util/initializeClient");
 const getAllMembers = async (req, res, mailingList) => {
   // Initalize params for pagination
   let members = [];
+  let emailSet = new Set();
   let count = [];
   const params = {
     limit: 1000,
@@ -33,15 +34,32 @@ const getAllMembers = async (req, res, mailingList) => {
   // Calculate the number of pages.
   const numPages = Math.ceil(members_count / params.limit);
 
+  // Update initial pagination params
+  params.page = initialMemberQuery.pages.next.page;
+
   for (let page = 1; page <= numPages; page++) {
-    // Update the skip parameter to change pages
-    params.skip = (page - 1) * params.limit;
     let memberDetails = await client.lists.members.listMembers(
       mailingList,
       params
     );
-    members = [...members, ...memberDetails.items];
-    console.log(page);
+
+    // Update pagination params
+    params.page = memberDetails.pages.next.page;
+
+    // Check for duplicates and skip them
+    let currentMembers = memberDetails.items;
+    for (let member of currentMembers) {
+      if (emailSet.has(member.address)) {
+        continue;
+      } else {
+        emailSet.add(member.address);
+        members.push(member);
+      }
+    }
+    console.log(
+      `Page: ${page} \n Members: ${currentMembers.length} Page: ${params.page}`
+    );
+    console.log(members.length);
   }
   return members;
 };
