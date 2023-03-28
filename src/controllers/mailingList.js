@@ -76,6 +76,15 @@ const downloadMailingList = async (req, res) => {
   const data = json2csv.parse(members, { fields });
 
   res.attachment(`${slugify(email)}.csv`);
+
+  // Set cookie to track download progress
+  const cookie = req.cookies.progressCookie;
+
+  if (cookie === undefined) {
+    // Set cookie once download is completed, expires within 5 minutes
+    res.cookie("downloadCookie", "done", { maxAge: 300000 });
+  }
+
   res.status(200).send(data);
 };
 module.exports = { createMailingList, getMailingLists, downloadMailingList };

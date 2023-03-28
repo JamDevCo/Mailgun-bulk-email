@@ -1,20 +1,12 @@
 var express = require("express");
 const fileUpload = require("express-fileupload");
-const fs = require("fs");
 var path = require("path");
 const bodyParser = require("body-parser");
-const { convert } = require("html-to-text");
-const router = express.Router();
-var mime = require("mime-types");
 var app = express();
-var Mailgun = require("mailgun-js");
 var md5 = require("md5");
 var session = require("express-session");
 const { v4: uuidv4 } = require("uuid");
-const { parse } = require("csv-parse/sync");
-const json2csv = require("json2csv");
-
-var session_store = new session.MemoryStore();
+const cookieParser = require("cookie-parser");
 
 global.__basedir = __dirname;
 
@@ -22,6 +14,8 @@ app.set("views", path.join(__dirname, "src"));
 app.set("view engine", "pug");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cookieParser());
+
 app.use(fileUpload());
 app.set("trust proxy", 1); // trust first proxy
 // app.use(session({

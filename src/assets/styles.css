@@ -1,70 +1,69 @@
 * {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .error {
-    color: rgb(251 243 243);
-    background: #7d0e0ea1;
-    text-transform: capitalize;
-    padding: 10px;
-    font-weight: bold;
-    max-width: 400px;
-    margin: 0 auto 10px auto;
+  color: rgb(251 243 243);
+  background: #7d0e0ea1;
+  text-transform: capitalize;
+  padding: 10px;
+  font-weight: bold;
+  max-width: 400px;
+  margin: 0 auto 10px auto;
 }
 
 .text-white {
-    color: white;
+  color: white;
 }
 
 .text-left {
-    text-align: left;
+  text-align: left;
 }
 
 .card {
-    /* Add shadows to create the "card" effect */
-    background-color: white;
-    padding: 20px;
-    transition: 0.3s;
-    border-radius: 8px;
+  /* Add shadows to create the "card" effect */
+  background-color: white;
+  padding: 20px;
+  transition: 0.3s;
+  border-radius: 8px;
 }
 
 table {
-    border-collapse: collapse;
-    width: 100%;
+  border-collapse: collapse;
+  width: 100%;
 }
 
 th,
 td {
-    padding: 8px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
 .overflow-x-hidden {
-    overflow-x: hidden !important;
+  overflow-x: hidden !important;
 }
 
 .overflow-email {
-    overflow-x: hidden !important;
+  overflow-x: hidden !important;
 }
 
-
 @media screen and (max-width: 1440px) {
-    .overflow-email {
-        max-width: 500px !important;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
+  .overflow-email {
+    max-width: 500px !important;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 }
 
 @media screen and (max-width: 1140px) {
-    .overflow-email {
-        max-width: 260px !important;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
+  .overflow-email {
+    max-width: 260px !important;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
 }
 
 /*
@@ -72,9 +71,9 @@ td {
  * Most of these are inherited from Base, but I want to change a few.
  */
 body {
-    line-height: 1.7em;
-    color: #7f8c8d;
-    font-size: 13px;
+  line-height: 1.7em;
+  color: #7f8c8d;
+  font-size: 13px;
 }
 
 h1,
@@ -84,12 +83,12 @@ h4,
 h5,
 h6,
 label {
-    color: #34495e;
+  color: #34495e;
 }
 
 .pure-img-responsive {
-    max-width: 100%;
-    height: auto;
+  max-width: 100%;
+  height: auto;
 }
 
 /*
@@ -97,42 +96,40 @@ label {
  * These are some useful classes which I will need
  */
 .l-box {
-    padding: 1em;
+  padding: 1em;
 }
 
 .l-box-lrg {
-    padding: 2em;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 2em;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .is-center {
-    text-align: center;
+  text-align: center;
 }
-
-
 
 /*
  * -- PURE FORM STYLES --
  * Style the form inputs and labels
  */
 .pure-form label {
-    margin: 1em 0 0;
-    font-weight: bold;
-    font-size: 100%;
+  margin: 1em 0 0;
+  font-weight: bold;
+  font-size: 100%;
 }
 
 .pure-padding {
-    padding-right: 10px;
-    padding-left: 10px;
+  padding-right: 10px;
+  padding-left: 10px;
 }
 
 .pure-form input,
 .form-control {
-    border: 2px solid #ddd;
-    box-shadow: none;
-    font-size: 100%;
-    width: 100%;
-    margin-bottom: 1em;
+  border: 2px solid #ddd;
+  box-shadow: none;
+  font-size: 100%;
+  width: 100%;
+  margin-bottom: 1em;
 }
 
 /*
@@ -140,25 +137,25 @@ label {
  * I want my pure-button elements to look a little different
  */
 .pure-button {
-    background-color: #1f8dd6;
-    color: white;
-    padding: 0.5em 2em;
-    border-radius: 5px;
+  background-color: #1f8dd6;
+  color: white;
+  padding: 0.5em 2em;
+  border-radius: 5px;
 }
 
 a.pure-button-primary {
-    background: white;
-    color: #1f8dd6;
-    border-radius: 5px;
-    font-size: 120%;
+  background: white;
+  color: #1f8dd6;
+  border-radius: 5px;
+  font-size: 120%;
 }
 
 .d-inline-block {
-    display: inline-block;
+  display: inline-block;
 }
 
 .d-block {
-    display: block;
+  display: block;
 }
 
 /*
@@ -167,43 +164,42 @@ a.pure-button-primary {
  */
 
 .home-menu {
-    padding: 0.5em;
-    text-align: center;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.10);
+  padding: 0.5em;
+  text-align: center;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
 .home-menu {
-    background: #2d3e50;
+  background: #2d3e50;
 }
 
 .pure-menu.pure-menu-fixed {
-    /* Fixed menus normally have a border at the bottom. */
-    border-bottom: none;
-    /* I need a higher z-index here because of the scroll-over effect. */
-    z-index: 4;
+  /* Fixed menus normally have a border at the bottom. */
+  border-bottom: none;
+  /* I need a higher z-index here because of the scroll-over effect. */
+  z-index: 4;
 }
 
 .home-menu .pure-menu-heading {
-    color: white;
-    font-weight: 400;
-    font-size: 120%;
+  color: white;
+  font-weight: 400;
+  font-size: 120%;
 }
 
 .home-menu .pure-menu-selected a {
-    color: white;
+  color: white;
 }
 
 .home-menu a {
-    color: #6FBEF3;
+  color: #6fbef3;
 }
 
 .home-menu li a:hover,
 .home-menu li a:focus {
-    background: none;
-    border: none;
-    color: #AECFE5;
+  background: none;
+  border: none;
+  color: #aecfe5;
 }
-
 
 /*
  * -- SPLASH STYLES --
@@ -211,52 +207,52 @@ a.pure-button-primary {
  */
 
 .splash-container {
-    background: #1f8dd6;
-    z-index: 1;
-    overflow: scroll;
-    /* The following styles are required for the "scroll-over" effect */
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    position: fixed !important;
+  background: #1f8dd6;
+  z-index: 1;
+  overflow: scroll;
+  /* The following styles are required for the "scroll-over" effect */
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  position: fixed !important;
 }
 
 .splash {
-    /* absolute center .splash within .splash-container */
-    width: 80%;
-    height: 50%;
-    margin: 0 auto;
-    text-align: center;
-    text-transform: uppercase;
+  /* absolute center .splash within .splash-container */
+  width: 80%;
+  height: 50%;
+  margin: 0 auto;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 /* This is the main heading that appears on the blue section */
 .splash-head {
-    font-size: 20px;
-    font-weight: bold;
-    color: white;
-    border: 3px solid white;
-    padding: 1em 1.6em;
-    font-weight: 100;
-    border-radius: 5px;
-    line-height: 1em;
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  border: 3px solid white;
+  padding: 1em 1.6em;
+  font-weight: 100;
+  border-radius: 5px;
+  line-height: 1em;
 }
 
 /* This is the subheading that appears on the blue section */
 .splash-subhead {
-    color: white;
-    letter-spacing: 0.05em;
-    opacity: 0.8;
-    text-transform: initial;
+  color: white;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+  text-transform: initial;
 }
 
 .splash-subhead.err {
-    background: rgba(255, 0, 0, 0.671);
+  background: rgba(255, 0, 0, 0.671);
 }
 
 .splash-subhead.success {
-    background: rgba(0, 255, 21, 0.671);
+  background: rgba(0, 255, 21, 0.671);
 }
 
 /*
@@ -264,55 +260,54 @@ a.pure-button-primary {
  * This represents the content area (everything below the blue section)
  */
 .content-wrapper {
-    /* These styles are required for the "scroll-over" effect */
-    position: absolute;
-    top: 87%;
-    width: 100%;
-    min-height: 12%;
-    z-index: 2;
-    background: white;
-
+  /* These styles are required for the "scroll-over" effect */
+  position: absolute;
+  top: 87%;
+  width: 100%;
+  min-height: 12%;
+  z-index: 2;
+  background: white;
 }
 
 /* We want to give the content area some more padding */
 .content {
-    padding: 1em 1em 3em;
+  padding: 1em 1em 3em;
 }
 
 /* This is the class used for the main content headers (<h2>) */
 .content-head {
-    font-weight: 400;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin: 2em 0 1em;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 2em 0 1em;
 }
 
 /* This is a modifier class used when the content-head is inside a ribbon */
 .content-head-ribbon {
-    color: white;
+  color: white;
 }
 
 /* This is the class used for the content sub-headers (<h3>) */
 .content-subhead {
-    color: #1f8dd6;
+  color: #1f8dd6;
 }
 
 .content-subhead i {
-    margin-right: 7px;
+  margin-right: 7px;
 }
 
 /* This is the class used for the dark-background areas. */
 .ribbon {
-    background: #2d3e50;
-    color: #aaa;
+  background: #2d3e50;
+  color: #aaa;
 }
 
 /* This is the class used for the footer */
 .footer {
-    background: #111;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+  background: #111;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
 
 /*
@@ -321,44 +316,41 @@ a.pure-button-primary {
  * of the mobile styles.
  */
 @media (min-width: 48em) {
+  /* We increase the body font size */
+  body {
+    font-size: 16px;
+  }
 
-    /* We increase the body font size */
-    body {
-        font-size: 16px;
-    }
-
-    /* We can align the menu header to the left, but float the
+  /* We can align the menu header to the left, but float the
     menu items to the right. */
-    .home-menu {
-        text-align: left;
-    }
+  .home-menu {
+    text-align: left;
+  }
 
-    .home-menu ul {
-        float: right;
-    }
+  .home-menu ul {
+    float: right;
+  }
 
-    /* We increase the height of the splash-container */
-    /*    .splash-container {
+  /* We increase the height of the splash-container */
+  /*    .splash-container {
         height: 500px;
     }*/
 
-    /* We decrease the width of the .splash, since we have more width
+  /* We decrease the width of the .splash, since we have more width
     to work with */
-    .splash {
-        width: 70%;
-        height: 50%;
-    }
+  .splash {
+    width: 70%;
+    height: 50%;
+  }
 
-    .splash-head {
-        font-size: 250%;
-    }
+  .splash-head {
+    font-size: 250%;
+  }
 
-
-    /* We remove the border-separator assigned to .l-box-lrg */
-    .l-box-lrg {
-        border: none;
-    }
-
+  /* We remove the border-separator assigned to .l-box-lrg */
+  .l-box-lrg {
+    border: none;
+  }
 }
 
 /*
@@ -367,49 +359,84 @@ a.pure-button-primary {
  * of the mobile and tablet styles.
  */
 @media (min-width: 78em) {
-
-    /* We increase the header font size even more */
-    .splash-head {
-        font-size: 300%;
-    }
+  /* We increase the header font size even more */
+  .splash-head {
+    font-size: 300%;
+  }
 }
 
 input[type="file"] {
-    background: white;
-    padding: 20px 10px;
+  background: white;
+  padding: 20px 10px;
 }
 
 .button-success,
 .button-error,
 .button-warning,
 .button-secondary {
-    color: white;
-    border-radius: 4px;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  color: white;
+  border-radius: 4px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .button-success {
-    background: rgb(28, 184, 65);
-    /* this is a green */
+  background: rgb(28, 184, 65);
+  /* this is a green */
 }
 
 .button-error {
-    background: rgb(202, 60, 60);
-    /* this is a maroon */
+  background: rgb(202, 60, 60);
+  /* this is a maroon */
 }
 
 .button-warning {
-    background: rgb(223, 117, 20);
-    /* this is an orange */
+  background: rgb(223, 117, 20);
+  /* this is an orange */
 }
 
 .button-secondary {
-    background: rgb(66, 184, 221);
-    /* this is a light blue */
+  background: rgb(66, 184, 221);
+  /* this is a light blue */
 }
 
 .micromodal-slide.is-open {
-    display: block;
-    position: absolute;
-    z-index: 100000;
+  display: block;
+  position: absolute;
+  z-index: 100000;
+}
+
+.lds-ring {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-ring div {
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border: 8px solid red;
+  border-radius: 50%;
+  animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  border-color: red transparent transparent transparent;
+}
+.lds-ring div:nth-child(1) {
+  animation-delay: -0.45s;
+}
+.lds-ring div:nth-child(2) {
+  animation-delay: -0.3s;
+}
+.lds-ring div:nth-child(3) {
+  animation-delay: -0.15s;
+}
+@keyframes lds-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
