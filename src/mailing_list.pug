@@ -38,6 +38,7 @@ script(src='/jquery/jquery.min.js' type="application/javascript")
 script(src='/app.js' type="application/javascript")
 script(type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js")
 script.
+    var result = true
     var interval = null;
     function getCookie(cookieName) {
         var name = cookieName + "=";
@@ -60,7 +61,7 @@ script.
         if (loadState == "done") {
             // Delete the cookie 
            
-            document.cookie = "downloadCookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+            document.cookie = "downloadCookie=; Path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
             const btn = document.getElementById('download-btn-' + index)
             btn.innerHTML = 'Download'
 
@@ -79,10 +80,11 @@ script.
                 onClick: function(){} // Callback after click
                 }).showToast();
             
-                return false
+            result = false
+            clearInterval(interval)
         }
 
-        return true
+        result = true
     }
     function showWaitingSpinner(){
         const loader = document.getElementById("loader")
@@ -93,19 +95,27 @@ script.
         console.log("Check Download Progress")
         const btn = document.getElementById('download-btn-' + index)
         btn.innerHTML = 'Downloading...'
+
+        interval = setInterval(isDownloadInProgress, 1000, index)
         
-        while(true){
-           let result = isDownloadInProgress(index);
-            
-            console.log(result)
-           if(result){
-            continue;
-           }else{
-            break;
-           }
+        //- while (result){
+        //-     result = isDownloadInProgress(index);
+        //- }
+        //- for(let i=0; i < 1000; i++){
+        //-     let result =
+        //-     console.log(result)
+        //-    if(result){
+        //-     continue;
+        //-    }else{
+        //-     break;
+        //- }
+        //- while(true){
+       
+        //-    }
         }
+    
        
 
         
-    }
+    
     
