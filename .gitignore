@@ -7,3 +7,5 @@ uploads/*
 
 docker-compose.override.yml
 out/
+out.zip
+debug.log
